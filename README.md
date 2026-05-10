@@ -5,7 +5,8 @@ Un compilador visual y educativo desarrollado en **Python** con **Tkinter**, dis
 ## Características
 - **Interfaz Estilo VSCode:** Editor de código con tema oscuro, numeración de líneas y consola integrada para reportes.
 - **Análisis Léxico (Scanner):** Motor robusto basado en Expresiones Regulares (`re`) que descompone el texto de izquierda a derecha en Tokens categorizados.
-- **Pruebas Automatizadas:** Listo para integrarse con `unittest` o `pytest` garantizando la estabilidad de las reglas gramaticales.
+- **Análisis Sintáctico (Parser):** Motor de Descenso Recursivo que valida la gramática estricta del lenguaje (orden correcto de los tokens) y reporta errores exactos en tiempo real.
+- **Pruebas Automatizadas:** Módulo de testing (18 pruebas unitarias) garantizando la estabilidad de las reglas gramaticales, tanto léxicas como sintácticas.
 
 ## Estructura del Proyecto
 
