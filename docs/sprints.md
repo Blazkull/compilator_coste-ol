@@ -3,6 +3,7 @@
 Este documento organiza el desarrollo del compilador en un marco de trabajo ágil basado en Sprints. Cada iteración tiene objetivos claros y entregables funcionales.
 
 ## Sprint 0: Fundamentos y Arquitectura (Completado)
+
 **Objetivo:** Establecer las bases teóricas, la estructura técnica del proyecto y las reglas iniciales del lenguaje.
 
 - **Tareas:**
@@ -16,6 +17,7 @@ Este documento organiza el desarrollo del compilador en un marco de trabajo ági
 ---
 
 ## Sprint 1: Analizador Léxico y Base de UI (Actividad Inicial)
+
 **Objetivo:** Implementar el "Scanner" que descompone el texto en Tokens y conectarlo a una versión temprana de la interfaz gráfica.
 
 - **Tareas:**
@@ -28,6 +30,7 @@ Este documento organiza el desarrollo del compilador en un marco de trabajo ági
 ---
 
 ## Sprint 2: Analizador Sintáctico (Parser)
+
 **Objetivo:** Validar que los tokens extraídos sigan la estructura gramatical del lenguaje Costeñol.
 
 - **Tareas:**
@@ -39,7 +42,8 @@ Este documento organiza el desarrollo del compilador en un marco de trabajo ági
 
 ---
 
-## Sprint 3: Analizador Semántico (Opcional/Avanzado)
+## Sprint 3: Analizador Semántico
+
 **Objetivo:** Darle sentido lógico al código validando tipos y alcance (scope).
 
 - **Tareas:**
@@ -52,6 +56,7 @@ Este documento organiza el desarrollo del compilador en un marco de trabajo ági
 ---
 
 ## Sprint 4: Pulido Final y UI VSCode
+
 **Objetivo:** Refinar el software, mejorar la experiencia de usuario en la interfaz visual y realizar pruebas finales.
 
 - **Tareas:**

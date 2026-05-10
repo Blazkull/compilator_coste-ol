@@ -6,6 +6,7 @@ import os
 # Asegurar que podemos importar el lexer
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from lexer.scanner import tokenize, LexicalError
+from parser.parser import Parser, SyntaxErrorCosteñol
 
 class CompilerGUI(tk.Tk):
     def __init__(self):
@@ -141,16 +142,32 @@ class CompilerGUI(tk.Tk):
             return
             
         try:
+            # 1. Análisis Léxico
             tokens = tokenize(codigo)
             
             # Poblar tabla
             for t in tokens:
                 self.tree.insert('', tk.END, values=(t.line, t.column, t.type, t.value))
                 
-            self.lbl_error.config(text=f"Análisis Léxico exitoso. {len(tokens)} tokens encontrados.", fg="#89D185") # Verde VSCode
+            # 2. Análisis Sintáctico
+            parser = Parser(tokens)
+            parser.parse()
+            
+            self.lbl_error.config(text=f"✅ Análisis Léxico y Sintáctico exitoso. {len(tokens)} tokens validados.", fg="#89D185") # Verde VSCode
             
         except LexicalError as e:
             self.lbl_error.config(text=str(e), fg=self.error_color)
+        except SyntaxErrorCosteñol as e:
+            # Seleccionar en la tabla el token que causó el error si es posible
+            if e.token:
+                for item in self.tree.get_children():
+                    val = self.tree.item(item, 'values')
+                    if int(val[0]) == e.token.line and int(val[1]) == e.token.column:
+                        self.tree.selection_set(item)
+                        self.tree.focus(item)
+                        self.tree.see(item)
+                        break
+            self.lbl_error.config(text=str(e.message), fg=self.error_color)
             
 def start_app():
     try:
