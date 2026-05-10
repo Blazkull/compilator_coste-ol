@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>entrega_final.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="investigaci%C3%B3n-de-compiladores-y-planeaci%C3%B3n-del-proyecto">Investigación de Compiladores y Planeación del Proyecto</h1>
+<p><strong>Estudiantes:</strong> Jhoan Acosta y Rafael Jimenez<br>
+<strong>Materia:</strong> Compiladores Viernes Nocturno
+<strong>Repositorio:</strong> <a href="https://github.com/Blazkull/compilator_coste-ol">https://github.com/Blazkull/compilator_coste-ol</a></p>
+<h2 id="1-referencias-de-trabajos-realizados-compiladores-existentes">1. Referencias de trabajos realizados (Compiladores existentes)</h2>
+<p>Los compiladores son programas fundamentales en la informática, encargados de traducir código fuente escrito en un lenguaje de alto nivel a lenguaje máquina o código intermedio. A continuación, se referencian algunos de los compiladores más importantes y reconocidos:</p>
+<ul>
+<li><strong>GCC (GNU Compiler Collection):</strong>
+<ul>
+<li><strong>Qué hace:</strong> Es un conjunto de compiladores integrados del Proyecto GNU que soporta varios lenguajes como C, C++, Objective-C, Fortran, Ada, Go y D. Produce código máquina altamente optimizado para múltiples arquitecturas de hardware.</li>
+<li><strong>Bajo qué software fue realizado:</strong> Está escrito principalmente en C y C++. Es software libre bajo la licencia GPL.</li>
+</ul>
+</li>
+<li><strong>Clang / LLVM:</strong>
+<ul>
+<li><strong>Qué hace:</strong> Clang es un front-end (analizador léxico, sintáctico y semántico) para lenguajes de la familia C (C, C++, Objective-C). Utiliza LLVM (Low Level Virtual Machine) como back-end para optimizar y generar el código máquina. Se destaca por sus mensajes de error más comprensibles y su rapidez de compilación.</li>
+<li><strong>Bajo qué software fue realizado:</strong> Escrito en C++.</li>
+</ul>
+</li>
+<li><strong>Javac (Java Compiler):</strong>
+<ul>
+<li><strong>Qué hace:</strong> Es el compilador principal del lenguaje Java. A diferencia de GCC o Clang que compilan a código máquina nativo, Javac compila el código fuente de Java (<code>.java</code>) a un código intermedio llamado <em>bytecode</em> (<code>.class</code>), el cual es interpretado y ejecutado por la Máquina Virtual de Java (JVM).</li>
+<li><strong>Bajo qué software fue realizado:</strong> Está escrito en el mismo lenguaje Java.</li>
+</ul>
+</li>
+<li><strong>CPython:</strong>
+<ul>
+<li><strong>Qué hace:</strong> Es la implementación de referencia del lenguaje Python. Funciona compilando el código fuente Python a <em>bytecode</em> de manera transparente, y luego una máquina virtual propia ejecuta ese bytecode.</li>
+<li><strong>Bajo qué software fue realizado:</strong> Escrito en C.</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-software-especializado-para-realizar-compiladores">2. Software especializado para realizar compiladores</h2>
+<p>Para facilitar la creación de compiladores, existen herramientas conocidas como &quot;Compiladores de compiladores&quot; o generadores de analizadores. Estas herramientas automatizan la creación de las fases de análisis léxico y sintáctico a partir de una gramática formal.</p>
+<ul>
+<li><strong>Lex / Flex:</strong> Herramientas para generar analizadores léxicos (scanners). Toman expresiones regulares y generan código en C que divide el texto en &quot;tokens&quot;. (Flex es la versión libre y mejorada de Lex).</li>
+<li><strong>Yacc / Bison:</strong> Generadores de analizadores sintácticos (parsers). Toman una gramática libre de contexto y generan el código en C que construye el árbol de sintaxis del código. (Bison es la versión libre de Yacc y se suele usar junto con Flex).</li>
+<li><strong>ANTLR (ANother Tool for Language Recognition):</strong> Una poderosa herramienta que puede generar analizadores léxicos y sintácticos a partir de un solo archivo de gramática. Genera código en múltiples lenguajes como Java, C#, Python, JavaScript, entre otros.</li>
+<li><strong>PLY (Python Lex-Yacc):</strong> Una implementación de las herramientas de análisis Lex y Yacc pero escritas puramente en Python. Es ideal si el compilador se va a desarrollar completamente en Python.</li>
+</ul>
+<h2 id="3-definici%C3%B3n-del-lenguaje-de-programaci%C3%B3n-y-planeaci%C3%B3n">3. Definición del Lenguaje de Programación y Planeación</h2>
+<h3 id="lenguaje-seleccionado">Lenguaje Seleccionado</h3>
+<p>Para el desarrollo de nuestro compilador para el lenguaje <strong>&quot;COSTEÑOL&quot;</strong>, se utilizará <strong>Python</strong>. Python es un lenguaje altamente versátil con excelentes capacidades para el manejo y procesamiento de cadenas de texto (strings) e incorpora una potente librería de Expresiones Regulares (<code>re</code>), lo cual facilitará enormemente la construcción del analizador léxico.</p>
+<p>Para la <strong>interfaz gráfica</strong>, se utilizará <strong>Tkinter</strong>, la biblioteca estándar de GUI para Python. Se diseñará con un tema oscuro (Dark Theme) emulando la apariencia de <strong>Visual Studio Code (VSCode)</strong>, incluyendo números de línea, resaltado de sintaxis simulado y un panel de consola inferior. Esto permitirá crear una interfaz amigable y profesional donde el usuario pueda ingresar el código fuente y ver el resultado de la tokenización, el análisis sintáctico y los posibles errores de manera visual.</p>
+<h3 id="planeaci%C3%B3n-del-desarrollo">Planeación del Desarrollo</h3>
+<p>El desarrollo del compilador se dividirá en las siguientes fases:</p>
+<ol>
+<li><strong>Fase 1: Análisis Léxico (Actividad Inicial):</strong>
+<ul>
+<li>Definir los patrones (expresiones regulares) para todos los elementos del lenguaje Costeñol (Tipos de datos: Entero, Texto, Real, Logico, palabras reservadas como Captura, Mensaje, operadores, identificadores y símbolos de puntuación).</li>
+<li>Desarrollar la interfaz gráfica en Tkinter con un área de texto para la entrada de código y una tabla o lista para mostrar los tokens generados.</li>
+</ul>
+</li>
+<li><strong>Fase 2: Análisis Sintáctico:</strong>
+<ul>
+<li>Definir la gramática del lenguaje Costeñol (reglas de cómo se estructuran las declaraciones, asignaciones y llamadas a funciones).</li>
+<li>Implementar el parser para validar la estructura del código basándose en los tokens generados en la Fase 1.</li>
+</ul>
+</li>
+<li><strong>Fase 3: Análisis Semántico:</strong>
+<ul>
+<li>Verificar la coherencia de los tipos (ej: no asignar texto a una variable declarada como Entero).</li>
+</ul>
+</li>
+<li><strong>Fase 4: Integración y Pruebas:</strong>
+<ul>
+<li>Unir todas las fases en la interfaz de Tkinter, asegurando que el flujo desde la escritura del código hasta el reporte de análisis sea continuo y robusto.</li>
+</ul>
+</li>
+</ol>
+<h3 id="arquitectura-y-estructura-del-proyecto">Arquitectura y Estructura del Proyecto</h3>
+<p>A continuación, se detalla cómo quedará estructurado el proyecto a nivel de carpetas y el diagrama general de su arquitectura:</p>
+<h4 id="estructura-de-carpetas">Estructura de Carpetas</h4>
+<pre><code class="language-mermaid"><div class="mermaid">graph TD
+    A[compilator_costeñol] --> B[.venv]
+    A --> C[docs]
+    A --> D[src]
+    A --> E[tests]
+    A --> F[requirements.txt]
+
+    C --> C1[tarea.md]
+    C --> C2[investigacion.md]
+    C --> C3[actividad_inicial.md]
+
+    D --> D1[main.py]
+    D --> D2[lexer/]
+    D2 --> D2A[__init__.py]
+    D2 --> D2B[scanner.py]
+    D2 --> D2C[tokens.py]
+    D --> D3[parser/]
+    D3 --> D3A[__init__.py]
+    D --> D4[gui/]
+    D4 --> D4A[__init__.py]
+    D4 --> D4B[app.py]
+
+    E --> E1[__init__.py]
+    E --> E2[test_lexer.py]
+</div></code></pre>
+<ul>
+<li><code>.venv/</code>: Entorno virtual de Python para aislar dependencias.</li>
+<li><code>docs/</code>: Almacena la documentación e investigación.</li>
+<li><code>src/</code>: Código fuente principal del compilador modularizado.
+<ul>
+<li><code>main.py</code>: Punto de entrada de la aplicación.</li>
+<li><code>lexer/</code>: Paquete para el Analizador Léxico (Actividad Inicial).</li>
+<li><code>parser/</code>: Paquete para el Analizador Sintáctico.</li>
+<li><code>gui/</code>: Paquete para la interfaz gráfica (Tema VSCode).</li>
+</ul>
+</li>
+<li><code>tests/</code>: Scripts para realizar pruebas automatizadas y evaluar combinaciones de entrada.</li>
+<li><code>requirements.txt</code>: Archivo para gestionar las dependencias del proyecto.</li>
+</ul>
+<h4 id="arquitectura-general-del-compilador">Arquitectura General del Compilador</h4>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart LR
+    User([Usuario]) -->|Escribe Código| GUI[Interfaz Tkinter]
+    GUI -->|String| Lexer[Analizador Léxico]
+    Lexer -->|Lista de Tokens| Parser[Analizador Sintáctico]
+    Parser -->|Árbol de Sintaxis| Semantic[Analizador Semántico]
+
+    Lexer -.->|Retorna Tabla de Tokens| GUI
+    Parser -.->|Retorna Errores/Éxito| GUI
+</div></code></pre>
+<hr>
+<h1 id="actividad-inicial-analizador-l%C3%A9xico-para-%22coste%C3%B1ol%22">Actividad Inicial: Analizador Léxico para &quot;COSTEÑOL&quot;</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>Realizar la primera parte del compilador: Descomponer en Tokens, de izquierda a derecha, todos los comandos de una línea de código del lenguaje propuesto (Costeñol).</p>
+<h2 id="herramientas">Herramientas</h2>
+<ul>
+<li><strong>Lenguaje Base:</strong> Python</li>
+<li><strong>Interfaz Gráfica:</strong> Tkinter (Librería estándar de Python)</li>
+<li><strong>Librería de Procesamiento:</strong> <code>re</code> (Expresiones Regulares nativas de Python)</li>
+</ul>
+<h2 id="funcionamiento-del-analizador-l%C3%A9xico-en-python">Funcionamiento del Analizador Léxico en Python</h2>
+<p>El analizador léxico tomará el código fuente escrito en el lenguaje <strong>Costeñol</strong> y lo agrupará en &quot;Tokens&quot; válidos definidos por las reglas del lenguaje.</p>
+<p>Para lograr esto en Python, utilizaremos expresiones regulares (Regex) para identificar cada componente.</p>
+<h3 id="especificaci%C3%B3n-de-tokens-coste%C3%B1ol">Especificación de Tokens (Costeñol)</h3>
+<p>Basados en las reglas del lenguaje, definiremos los siguientes tipos de tokens:</p>
+<ol>
+<li><strong>Tipos de Datos (Palabras Reservadas):</strong> <code>Texto</code>, <code>Entero</code>, <code>Real</code>, <code>Logico</code></li>
+<li><strong>Comandos de Lectura/Escritura (Palabras Reservadas):</strong> <code>Captura</code>, <code>Mensaje</code>
+<ul>
+<li><strong><code>Captura</code></strong>: Se utiliza para solicitar el ingreso de datos por parte del usuario. Funciona de manera análoga a un <code>input()</code> en Python o <code>scanf()</code> en C. Su formato es <code>Captura.&lt;TipoDato&gt;()</code>.</li>
+<li><strong><code>Mensaje</code></strong>: Se utiliza para mostrar o imprimir datos en la pantalla/consola. Es análogo a un <code>print()</code> en Python o <code>printf()</code> en C. Su formato es <code>Mensaje.Texto(&quot;&lt;texto&gt;&quot;)</code>.</li>
+</ul>
+</li>
+<li><strong>Identificadores:</strong> Nombres de variables (ej. <code>num1</code>, <code>nombre</code>, <code>asis</code>). Formados por letras y opcionalmente números.</li>
+<li><strong>Operadores:</strong>
+<ul>
+<li>Asignación: <code>=</code></li>
+<li>Aritméticos: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code></li>
+<li>Separadores/Acceso: <code>.</code> (Punto para <code>Captura.Entero()</code>)</li>
+</ul>
+</li>
+<li><strong>Delimitadores:</strong>
+<ul>
+<li>Paréntesis: <code>(</code> y <code>)</code></li>
+<li>Fin de línea: <code>;</code></li>
+</ul>
+</li>
+<li><strong>Literales (Valores):</strong>
+<ul>
+<li>Cadenas de Texto: Todo lo que esté entre comillas dobles <code>&quot;Esto es una prueba&quot;</code> o <code>&quot;Alejandra&quot;</code>.</li>
+<li>Números Enteros: Secuencia de dígitos <code>10</code>, <code>50</code>.</li>
+<li>Números Reales: Dígitos separados por coma <code>,</code> (ej. <code>3,1416</code>).</li>
+</ul>
+</li>
+</ol>
+<h3 id="estructura-de-la-aplicaci%C3%B3n-python--tkinter">Estructura de la Aplicación (Python + Tkinter)</h3>
+<p>El script constará de dos partes principales:</p>
+<ol>
+<li>
+<p><strong>El Motor Léxico (<code>scanner</code>):</strong>
+Una función en Python que recibe un string (línea de código), aplica una serie de patrones Regex predefinidos utilizando <code>re.finditer</code> o <code>re.match</code>, y devuelve una lista estructurada con los tokens encontrados, ignorando los espacios en blanco.</p>
+</li>
+<li>
+<p><strong>La Interfaz Gráfica (GUI - Estilo VSCode):</strong>
+Una ventana creada con Tkinter diseñada para simular el entorno de Visual Studio Code (tema oscuro, áreas separadas). Contendrá:</p>
+<ul>
+<li>Un campo de texto grande (<code>Text</code> widget) donde el usuario puede escribir su código en Costeñol.</li>
+<li>Un botón &quot;Analizar Léxicamente&quot; (<code>Button</code> widget).</li>
+<li>Un área de resultados, típicamente una tabla (<code>Treeview</code> de <code>tkinter.ttk</code>), donde se mostrará la salida del análisis. La tabla tendrá columnas para: <code>Línea</code>, <code>Token (Lexema)</code>, y <code>Tipo de Token</code>.</li>
+</ul>
+</li>
+</ol>
+<h3 id="flujo-de-ejecuci%C3%B3n-script-de-la-actividad-inicial">Flujo de Ejecución (Script de la Actividad Inicial)</h3>
+<ol>
+<li>El usuario ingresa una línea de código como: <code>num1 Entero; nombre Texto;</code> en la ventana de Tkinter.</li>
+<li>Al presionar &quot;Analizar&quot;, Tkinter captura el texto y se lo pasa a la función del motor léxico.</li>
+<li>El motor recorre el texto de izquierda a derecha. Encuentra <code>num1</code> y lo clasifica como <code>IDENTIFICADOR</code>. Luego encuentra <code>Entero</code> y lo clasifica como <code>TIPO_DATO</code>. Luego encuentra <code>;</code> y lo clasifica como <code>DELIMITADOR_FIN_LINEA</code>.</li>
+<li>El motor léxico retorna la lista de tokens generada a Tkinter.</li>
+<li>Tkinter toma esta lista y la renderiza fila por fila en la tabla visual de resultados, indicando claramente qué componente es cada palabra o símbolo de la línea evaluada.</li>
+</ol>
+<h3 id="diagrama-de-flujo-del-analizador-l%C3%A9xico">Diagrama de Flujo del Analizador Léxico</h3>
+<p>Para entender mejor cómo se conectará la interfaz con la lógica del tokenizador, el siguiente diagrama muestra el flujo exacto de la &quot;Actividad Inicial&quot;:</p>
+<pre><code class="language-mermaid"><div class="mermaid">flowchart TD
+    A([Usuario]) -->|Ingresa código en GUI| B(Interfaz Tkinter Estilo VSCode)
+    B -->|Clic en Analizar| C{Motor Léxico Regex}
+
+    C -->|Leer token a token| D[Identifica: num1 -> IDENTIFICADOR]
+    C --> E[Ignora: espacios en blanco]
+    C --> F[Identifica: Entero -> TIPO_DATO]
+    C --> G[Identifica: ; -> DELIMITADOR]
+
+    D --> H((Lista de Tokens))
+    F --> H
+    G --> H
+
+    H -->|Devuelve Array| I[Tabla Treeview de Tkinter]
+    I -->|Muestra resultados| J([Usuario])
+</div></code></pre>
+<hr>
+<h2 id="4-implementaci%C3%B3n-del-script-de-descomposici%C3%B3n-de-tokens">4. Implementación del Script de Descomposición de Tokens</h2>
+<p>Para llevar a cabo el Análisis Léxico (o Escáner), investigamos y estructuramos un script en Python que nos permitiera identificar y clasificar cada componente del código fuente. A continuación, detallamos el proceso lógico y las herramientas utilizadas para lograr esta descomposición de tokens.</p>
+<h3 id="41-definici%C3%B3n-de-expresiones-regulares-tokenspy">4.1 Definición de Expresiones Regulares (<code>tokens.py</code>)</h3>
+<p>Nos apoyamos fuertemente en la librería estándar <code>re</code> de Python, la cual es fundamental para el procesamiento de texto avanzado. Construimos un diccionario maestro de expresiones regulares con las siguientes reglas para nuestro lenguaje:</p>
+<ul>
+<li><strong>TIPO_DATO:</strong> <code>\b(Texto|Entero|Real|Logico)\b</code></li>
+<li><strong>COMANDO_IO:</strong> <code>\b(Captura|Mensaje)\b</code></li>
+<li><strong>NUMERO_REAL:</strong> <code>\d+,\d+</code> (Exige el uso de coma).</li>
+<li><strong>NUMERO_ENTERO:</strong> <code>\d+</code></li>
+<li><strong>CADENA_TEXTO:</strong> <code>&quot;[^&quot;]*&quot;</code></li>
+<li><strong>IDENTIFICADOR:</strong> <code>[a-zA-Z_]\w*</code></li>
+<li><strong>OPERADOR_ASIGNACION:</strong> <code>=</code></li>
+<li><strong>OPERADOR_ARITMETICO:</strong> <code>[+\-*/]</code></li>
+<li><strong>PARENTESIS_ABRE / CIERRA:</strong> <code>\(</code> y <code>\)</code></li>
+<li><strong>DELIMITADOR_FIN:</strong> <code>;</code></li>
+<li><strong>SEPARADOR:</strong> <code>\.</code></li>
+<li><strong>ESPACIOS:</strong> <code>\s+</code> (Se capturan pero se ignoran en el listado final).</li>
+</ul>
+<p>Decidimos unificar estas reglas en un <strong>Regex Maestro</strong> aprovechando el formato de grupos nombrados de Python <code>(?P&lt;Nombre&gt;Patron)</code>. Esta técnica nos pareció la más óptima ya que permite analizar el texto en una sola pasada, aumentando notablemente el rendimiento.</p>
+<h3 id="42-motor-de-tokenizaci%C3%B3n-scannerpy">4.2 Motor de Tokenización (<code>scanner.py</code>)</h3>
+<p>Implementamos el método central <code>tokenize(code)</code>, el cual recorre la cadena de código de izquierda a derecha. Su funcionamiento se basa en un ciclo <code>while</code> y la función <code>match()</code> de Regex.</p>
+<ol>
+<li>El motor intenta hacer &quot;match&quot; del texto en la posición actual contra el Regex Maestro.</li>
+<li>Si coincide con <code>ESPACIOS</code>, avanzamos la posición internamente y actualizamos el conteo de saltos de línea para no perder el rastro de la ubicación.</li>
+<li>Si coincide con cualquier otra regla, instanciamos un objeto <strong>Token</strong> que guarda el Tipo, Valor (Lexema), Línea y Columna.</li>
+<li><strong>Manejo de Errores:</strong> Si encontramos un carácter extraño (como un <code>@</code> o <code>&amp;</code>), el proceso se detiene lanzando una excepción <code>LexicalError</code>. Esto nos garantiza que el lenguaje se mantenga estricto y limpio desde el principio.</li>
+</ol>
+<p>A continuación, presentamos el bloque de código principal en Python que ilustra esta lógica de descomposición utilizando la librería <code>re</code>:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">import</span> re
+
+<span class="hljs-comment"># Unificación de reglas en un Regex Maestro</span>
+PATRONES = [
+    (<span class="hljs-string">'TIPO_DATO'</span>, <span class="hljs-string">r'\b(Entero|Real|Texto|Logico)\b'</span>),
+    (<span class="hljs-string">'COMANDO_IO'</span>, <span class="hljs-string">r'\b(Captura|Mensaje)\b'</span>),
+    (<span class="hljs-string">'NUMERO_REAL'</span>, <span class="hljs-string">r'\d+,\d+'</span>),
+    (<span class="hljs-string">'NUMERO_ENTERO'</span>, <span class="hljs-string">r'\d+'</span>),
+    (<span class="hljs-string">'CADENA_TEXTO'</span>, <span class="hljs-string">r'"[^"]*"'</span>),
+    (<span class="hljs-string">'IDENTIFICADOR'</span>, <span class="hljs-string">r'[a-zA-Z_][a-zA-Z0-9_]*'</span>),
+    (<span class="hljs-string">'OPERADOR_ASIGNACION'</span>, <span class="hljs-string">r'='</span>),
+    (<span class="hljs-string">'OPERADOR_ARITMETICO'</span>, <span class="hljs-string">r'[+\-*/]'</span>),
+    (<span class="hljs-string">'PARENTESIS_ABRE'</span>, <span class="hljs-string">r'\('</span>),
+    (<span class="hljs-string">'PARENTESIS_CIERRA'</span>, <span class="hljs-string">r'\)'</span>),
+    (<span class="hljs-string">'DELIMITADOR_FIN'</span>, <span class="hljs-string">r';'</span>),
+    (<span class="hljs-string">'SEPARADOR'</span>, <span class="hljs-string">r'\.'</span>),
+    (<span class="hljs-string">'ESPACIOS'</span>, <span class="hljs-string">r'\s+'</span>)
+]
+
+<span class="hljs-comment"># Construcción de la expresión regular compilada</span>
+regex_parts = []
+<span class="hljs-keyword">for</span> name, pattern <span class="hljs-keyword">in</span> PATRONES:
+    regex_parts.append(<span class="hljs-string">f'(?P&lt;<span class="hljs-subst">{name}</span>&gt;<span class="hljs-subst">{pattern}</span>)'</span>)
+MASTER_REGEX = re.compile(<span class="hljs-string">'|'</span>.join(regex_parts))
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">tokenize</span><span class="hljs-params">(code: str)</span>:</span>
+    tokens = []
+    line_num = <span class="hljs-number">1</span>
+    line_start = <span class="hljs-number">0</span>
+    position = <span class="hljs-number">0</span>
+    length = len(code)
+    
+    <span class="hljs-keyword">while</span> position &lt; length:
+        match = MASTER_REGEX.match(code, position)
+        <span class="hljs-keyword">if</span> match:
+            type_name = match.lastgroup
+            value = match.group(type_name)
+            column = position - line_start + <span class="hljs-number">1</span>
+            
+            <span class="hljs-keyword">if</span> type_name != <span class="hljs-string">'ESPACIOS'</span>:
+                tokens.append({<span class="hljs-string">'tipo'</span>: type_name, <span class="hljs-string">'valor'</span>: value, <span class="hljs-string">'linea'</span>: line_num, <span class="hljs-string">'columna'</span>: column})
+            <span class="hljs-keyword">elif</span> <span class="hljs-string">'\n'</span> <span class="hljs-keyword">in</span> value:
+                line_num += value.count(<span class="hljs-string">'\n'</span>)
+                line_start = position + value.rfind(<span class="hljs-string">'\n'</span>) + <span class="hljs-number">1</span>
+                
+            position = match.end()
+        <span class="hljs-keyword">else</span>:
+            <span class="hljs-keyword">raise</span> Exception(<span class="hljs-string">f"Error Léxico: Carácter ilegal en la línea <span class="hljs-subst">{line_num}</span>"</span>)
+            
+    <span class="hljs-keyword">return</span> tokens
+</div></code></pre>
+<h3 id="43-pruebas-automatizadas">4.3 Pruebas Automatizadas</h3>
+<p>Como parte de las buenas prácticas en la investigación y desarrollo del compilador, elaboramos pruebas unitarias (<code>unittest</code>) para someter al escáner a diferentes escenarios:</p>
+<ul>
+<li>Declaraciones y asignaciones simples (<code>num1 Entero;</code>).</li>
+<li>Operaciones complejas con múltiples componentes.</li>
+<li>Rechazo estricto de caracteres inválidos.</li>
+</ul>
+<p>Con esto logramos certificar que nuestra base léxica es sólida antes de continuar con la siguiente fase.</p>
+
+</body>
+</html>

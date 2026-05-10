@@ -58,5 +58,35 @@ class TestSemantic(unittest.TestCase):
         except SemanticErrorCosteñol:
             self.fail("Falló en una asignación semántica válida (Entero -> Real).")
 
+    def test_complejo_multilinea_valido(self):
+        """Prueba Semántica: Multiples líneas válidas."""
+        codigo = '''
+        num1 Entero;
+        num2 Real;
+        num1 = 5;
+        num2 = num1 + 3;
+        texto1 Texto;
+        texto1 = "Exito";
+        Mensaje.Texto(texto1);
+        '''
+        try:
+            self._parse(codigo)
+        except SemanticErrorCosteñol:
+            self.fail("Falló en un bloque válido de varias líneas.")
+            
+    def test_complejo_error_anidado(self):
+        """Prueba Semántica: Multiples líneas con error al final."""
+        codigo = '''
+        num1 Entero;
+        num2 Real;
+        num1 = 5;
+        num2 = num1 + 3;
+        texto1 Texto;
+        texto1 = num1 + 10;
+        '''
+        with self.assertRaises(SemanticErrorCosteñol) as context:
+            self._parse(codigo)
+        self.assertIn("No se puede asignar una expresión de tipo 'Entero'", context.exception.message)
+
 if __name__ == '__main__':
     unittest.main()

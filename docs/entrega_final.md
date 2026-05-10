@@ -195,12 +195,12 @@ flowchart TD
 
 ---
 
-## 4. Implementación del Script de Descomposición de Tokens (Sprint 1)
+## 4. Implementación del Script de Descomposición de Tokens
 
-El desarrollo del Analizador Léxico (Escáner) se completó exitosamente dividiendo la lógica en componentes modulares bajo la carpeta `src/lexer/`. A continuación se detalla cómo se realizó técnicamente la captura y validación de tokens:
+Para llevar a cabo el Análisis Léxico (o Escáner), investigamos y estructuramos un script en Python que nos permitiera identificar y clasificar cada componente del código fuente. A continuación, detallamos el proceso lógico y las herramientas utilizadas para lograr esta descomposición de tokens.
 
 ### 4.1 Definición de Expresiones Regulares (`tokens.py`)
-Se construyó un diccionario maestro de expresiones regulares (`Regex`) utilizando la librería `re` de Python. Las reglas establecidas son:
+Nos apoyamos fuertemente en la librería estándar `re` de Python, la cual es fundamental para el procesamiento de texto avanzado. Construimos un diccionario maestro de expresiones regulares con las siguientes reglas para nuestro lenguaje:
 
 *   **TIPO_DATO:** `\b(Texto|Entero|Real|Logico)\b`
 *   **COMANDO_IO:** `\b(Captura|Mensaje)\b`
@@ -215,21 +215,75 @@ Se construyó un diccionario maestro de expresiones regulares (`Regex`) utilizan
 *   **SEPARADOR:** `\.`
 *   **ESPACIOS:** `\s+` (Se capturan pero se ignoran en el listado final).
 
-Estas reglas se unificaron en un **Regex Maestro** utilizando el formato de grupos nombrados de Python `(?P<Nombre>Patron)`, lo que permite un escaneo extremadamente veloz con una sola pasada.
+Decidimos unificar estas reglas en un **Regex Maestro** aprovechando el formato de grupos nombrados de Python `(?P<Nombre>Patron)`. Esta técnica nos pareció la más óptima ya que permite analizar el texto en una sola pasada, aumentando notablemente el rendimiento.
 
 ### 4.2 Motor de Tokenización (`scanner.py`)
-Se programó el método `tokenize(code)` que recorre la cadena de código introducida de izquierda a derecha usando un ciclo `while` y la función `match()` de Regex.
+Implementamos el método central `tokenize(code)`, el cual recorre la cadena de código de izquierda a derecha. Su funcionamiento se basa en un ciclo `while` y la función `match()` de Regex.
 
 1.  El motor intenta hacer "match" del texto en la posición actual contra el Regex Maestro.
-2.  Si coincide con `ESPACIOS`, simplemente avanza la posición (y cuenta los saltos de línea `\n` para mantener el rastreo correcto).
-3.  Si coincide con cualquier otra regla, genera un objeto **Token** que contiene: `Tipo`, `Valor (Lexema)`, `Línea` y `Columna`.
-4.  **Manejo de Errores:** Si el carácter actual no encaja con absolutamente ninguna regla del lenguaje (ejemplo: un símbolo `@` o un `&`), el motor detiene inmediatamente el proceso y arroja una excepción `LexicalError` indicando la línea y columna exacta del error, garantizando así un lenguaje estricto y limpio.
+2.  Si coincide con `ESPACIOS`, avanzamos la posición internamente y actualizamos el conteo de saltos de línea para no perder el rastro de la ubicación.
+3.  Si coincide con cualquier otra regla, instanciamos un objeto **Token** que guarda el Tipo, Valor (Lexema), Línea y Columna.
+4.  **Manejo de Errores:** Si encontramos un carácter extraño (como un `@` o `&`), el proceso se detiene lanzando una excepción `LexicalError`. Esto nos garantiza que el lenguaje se mantenga estricto y limpio desde el principio.
 
-### 4.3 Pruebas Automatizadas (`tests/test_lexer.py`)
-Para certificar el correcto funcionamiento del escáner, se configuró un entorno de pruebas unitarias (`unittest`) que evalúa diversos escenarios de código en milisegundos, incluyendo:
+A continuación, presentamos el bloque de código principal en Python que ilustra esta lógica de descomposición utilizando la librería `re`:
+
+```python
+import re
+
+# Unificación de reglas en un Regex Maestro
+PATRONES = [
+    ('TIPO_DATO', r'\b(Entero|Real|Texto|Logico)\b'),
+    ('COMANDO_IO', r'\b(Captura|Mensaje)\b'),
+    ('NUMERO_REAL', r'\d+,\d+'),
+    ('NUMERO_ENTERO', r'\d+'),
+    ('CADENA_TEXTO', r'"[^"]*"'),
+    ('IDENTIFICADOR', r'[a-zA-Z_][a-zA-Z0-9_]*'),
+    ('OPERADOR_ASIGNACION', r'='),
+    ('OPERADOR_ARITMETICO', r'[+\-*/]'),
+    ('PARENTESIS_ABRE', r'\('),
+    ('PARENTESIS_CIERRA', r'\)'),
+    ('DELIMITADOR_FIN', r';'),
+    ('SEPARADOR', r'\.'),
+    ('ESPACIOS', r'\s+')
+]
+
+# Construcción de la expresión regular compilada
+regex_parts = []
+for name, pattern in PATRONES:
+    regex_parts.append(f'(?P<{name}>{pattern})')
+MASTER_REGEX = re.compile('|'.join(regex_parts))
+
+def tokenize(code: str):
+    tokens = []
+    line_num = 1
+    line_start = 0
+    position = 0
+    length = len(code)
+    
+    while position < length:
+        match = MASTER_REGEX.match(code, position)
+        if match:
+            type_name = match.lastgroup
+            value = match.group(type_name)
+            column = position - line_start + 1
+            
+            if type_name != 'ESPACIOS':
+                tokens.append({'tipo': type_name, 'valor': value, 'linea': line_num, 'columna': column})
+            elif '\n' in value:
+                line_num += value.count('\n')
+                line_start = position + value.rfind('\n') + 1
+                
+            position = match.end()
+        else:
+            raise Exception(f"Error Léxico: Carácter ilegal en la línea {line_num}")
+            
+    return tokens
+```
+
+### 4.3 Pruebas Automatizadas
+Como parte de las buenas prácticas en la investigación y desarrollo del compilador, elaboramos pruebas unitarias (`unittest`) para someter al escáner a diferentes escenarios:
 *   Declaraciones y asignaciones simples (`num1 Entero;`).
-*   Operaciones complejas con múltiples componentes (`res = ( 10 + 20 ) / 5 - num1;`).
+*   Operaciones complejas con múltiples componentes.
 *   Rechazo estricto de caracteres inválidos.
-*   Ignorar saltos de línea intermedios.
 
-Estas pruebas aseguran que las bases léxicas del Compilador Costeñol son sólidas y están preparadas para iniciar el Análisis Sintáctico.
+Con esto logramos certificar que nuestra base léxica es sólida antes de continuar con la siguiente fase.

@@ -2,11 +2,16 @@
 
 Un compilador visual y educativo desarrollado en **Python** con **Tkinter**, diseñado para analizar de manera léxica, sintáctica y semántica el lenguaje ficticio "Costeñol".
 
-## Características
-- **Interfaz Estilo VSCode:** Editor de código con tema oscuro, numeración de líneas y consola integrada para reportes.
-- **Análisis Léxico (Scanner):** Motor robusto basado en Expresiones Regulares (`re`) que descompone el texto de izquierda a derecha en Tokens categorizados.
-- **Análisis Sintáctico (Parser):** Motor de Descenso Recursivo que valida la gramática estricta del lenguaje (orden correcto de los tokens) y reporta errores exactos en tiempo real.
-- **Pruebas Automatizadas:** Módulo de testing (18 pruebas unitarias) garantizando la estabilidad de las reglas gramaticales, tanto léxicas como sintácticas.
+## Características (Versión 1.0)
+- **IDE Costeñol Avanzado:** Interfaz gráfica profesional construida con Tkinter que incluye:
+  - **Numeración de Líneas Dinámica:** Sincronizada con el scroll del código.
+  - **Resaltado de Sintaxis en Tiempo Real:** Colorea tipos de datos, comandos, números y cadenas al instante.
+  - **Subrayado de Errores Visual:** Marca exactamente la palabra o símbolo que causa un fallo en el análisis con un subrayado rojo.
+  - **Identidad Visual:** Logo de sistema integrado tanto en la barra de título como en la barra de tareas de Windows.
+- **Analizador Léxico (Scanner):** Motor robusto basado en Expresiones Regulares (`re`) que extrae Tokens categorizados.
+- **Analizador Sintáctico (Parser):** Motor de Descenso Recursivo que valida la gramática estructural del lenguaje.
+- **Analizador Semántico:** Tabla de símbolos inteligente que valida tipos de datos y previene doble declaración o uso de variables fantasma.
+- **Pruebas Automatizadas Rigurosas:** Suite completa con **27 pruebas unitarias** que evalúan al máximo las tres etapas del compilador.
 
 ## Estructura del Proyecto
 
