@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'
 
 from tests.test_lexer import TestLexer
 from tests.test_parser import TestParser
+from tests.test_semantic import TestSemantic
 
 def run_custom_tests():
     print("========================================")
@@ -16,6 +17,7 @@ def run_custom_tests():
     loader = unittest.TestLoader()
     suite_lexer = loader.loadTestsFromTestCase(TestLexer)
     suite_parser = loader.loadTestsFromTestCase(TestParser)
+    suite_semantic = loader.loadTestsFromTestCase(TestSemantic)
     
     passed = 0
     failed = 0
@@ -38,6 +40,7 @@ def run_custom_tests():
 
     run_suite(suite_lexer, "Analizador Léxico")
     run_suite(suite_parser, "Analizador Sintáctico")
+    run_suite(suite_semantic, "Analizador Semántico")
             
     print("\n----------------------------------------")
     print(" RESUMEN DE PRUEBAS ")

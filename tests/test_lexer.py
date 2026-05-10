@@ -2,9 +2,8 @@ import sys
 import os
 import unittest
 
-# Añadir src al path para poder importar
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # Para que el linter reconozca 'src'
+# Añadir el directorio raíz al path para poder importar src como paquete
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.lexer.scanner import tokenize, LexicalError
 

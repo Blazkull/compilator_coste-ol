@@ -35,26 +35,26 @@ class TestParser(unittest.TestCase):
     def test_asignacion_matematica(self):
         """Prueba Sintáctica: Asignación matemática con paréntesis -> 'res = (10 + 20) / 5;'"""
         try:
-            self._parse("res = (10 + 20) / 5;")
+            self._parse("res Entero; res = (10 + 20) / 5;")
         except SyntaxErrorCosteñol:
             self.fail("Falló en una asignación matemática válida.")
             
     def test_asignacion_incompleta(self):
         """Prueba Sintáctica: Fallo intencional por expresión matemática incompleta -> 'res = 10 + ;'"""
         with self.assertRaises(SyntaxErrorCosteñol):
-            self._parse("res = 10 + ;")
+            self._parse("res Entero; res = 10 + ;")
             
     def test_captura_correcta(self):
         """Prueba Sintáctica: Función Captura bien formada -> 'nombre = Captura.Texto();'"""
         try:
-            self._parse("nombre = Captura.Texto();")
+            self._parse("nombre Texto; nombre = Captura.Texto();")
         except SyntaxErrorCosteñol:
             self.fail("Falló en una Captura que debería ser válida.")
             
     def test_captura_sin_parentesis(self):
         """Prueba Sintáctica: Fallo intencional Captura sin paréntesis -> 'nombre = Captura.Texto;'"""
         with self.assertRaises(SyntaxErrorCosteñol):
-            self._parse("nombre = Captura.Texto;")
+            self._parse("nombre Texto; nombre = Captura.Texto;")
             
     def test_mensaje_correcto(self):
         """Prueba Sintáctica: Función Mensaje bien formada -> 'Mensaje.Texto("Hola Mundo");'"""
@@ -68,6 +68,7 @@ class TestParser(unittest.TestCase):
         codigo = '''
         num1 Entero;
         nombre Texto;
+        res Entero;
         nombre = Captura.Texto();
         res = num1 + 5;
         Mensaje.Texto(nombre);

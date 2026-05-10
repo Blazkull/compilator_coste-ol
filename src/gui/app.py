@@ -5,8 +5,9 @@ import os
 
 # Asegurar que podemos importar el lexer
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from lexer.scanner import tokenize, LexicalError
-from parser.parser import Parser, SyntaxErrorCosteñol
+from src.lexer.scanner import tokenize, LexicalError
+from src.parser.parser import Parser, SyntaxErrorCosteñol
+from src.semantic.symbol_table import SemanticErrorCosteñol
 
 class CompilerGUI(tk.Tk):
     def __init__(self):
@@ -172,6 +173,18 @@ class CompilerGUI(tk.Tk):
                         break
             self.lbl_error.config(text=str(e.message), fg=self.error_color)
             messagebox.showerror("Error Sintáctico", str(e.message))
+        except SemanticErrorCosteñol as e:
+            # Seleccionar en la tabla el token que causó el error si es posible
+            if getattr(e, 'token', None):
+                for item in self.tree.get_children():
+                    val = self.tree.item(item, 'values')
+                    if int(val[0]) == e.token.line and int(val[1]) == e.token.column:
+                        self.tree.selection_set(item)
+                        self.tree.focus(item)
+                        self.tree.see(item)
+                        break
+            self.lbl_error.config(text=str(e.message), fg=self.error_color)
+            messagebox.showerror("Error Semántico", str(e.message))
             
 def start_app():
     try:

@@ -1,3 +1,5 @@
+from src.semantic.symbol_table import SymbolTable, SemanticErrorCosteñol
+
 class SyntaxErrorCosteñol(Exception):
     """Excepción lanzada cuando hay un error de sintaxis en el código."""
     def __init__(self, message, token):
@@ -10,6 +12,7 @@ class Parser:
         self.tokens = tokens
         self.current_index = 0
         self.current_token = self.tokens[self.current_index] if self.tokens else None
+        self.symtab = SymbolTable()
 
     def advance(self):
         """Avanza al siguiente token."""
@@ -80,9 +83,14 @@ class Parser:
 
     def parse_declaracion(self):
         """Regla 1: [IDENTIFICADOR] [TIPO_DATO] [DELIMITADOR_FIN]"""
+        name_token = self.current_token
         self.match('IDENTIFICADOR')
+        type_token = self.current_token
         self.match('TIPO_DATO')
         self.match('DELIMITADOR_FIN')
+        
+        # Análisis Semántico: Registrar variable
+        self.symtab.define(name_token.value, type_token.value, name_token)
 
     def parse_asignacion_o_captura(self):
         """
@@ -90,21 +98,45 @@ class Parser:
         Asignación matemática: [IDENTIFICADOR] [OPERADOR_ASIGNACION] [EXPRESION] [DELIMITADOR_FIN]
         Captura: [IDENTIFICADOR] [OPERADOR_ASIGNACION] [COMANDO_IO] [SEPARADOR] [TIPO_DATO] [PARENTESIS_ABRE] [PARENTESIS_CIERRA] [DELIMITADOR_FIN]
         """
+        name_token = self.current_token
         self.match('IDENTIFICADOR')
+        
+        # Análisis Semántico: Verificar que la variable esté declarada
+        var_type = self.symtab.lookup(name_token.value, name_token)
+        
         self.match('OPERADOR_ASIGNACION')
         
         # Lookahead para ver si es Captura o una expresión normal
         if self.current_token and self.current_token.type == 'COMANDO_IO' and self.current_token.value == 'Captura':
-            self.parse_captura_tail()
+            self.parse_captura_tail(var_type, name_token)
         else:
-            self.parse_expresion()
+            expr_type = self.parse_expresion()
             self.match('DELIMITADOR_FIN')
+            
+            # Análisis Semántico: Type checking para asignación normal
+            if expr_type and expr_type != var_type:
+                # Permitir Entero a Real
+                if not (var_type == 'Real' and expr_type == 'Entero'):
+                    raise SemanticErrorCosteñol(
+                        f"Error Semántico: No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
+                        name_token
+                    )
 
-    def parse_captura_tail(self):
+    def parse_captura_tail(self, var_type, name_token):
         """Lo que sigue después del '=' cuando se hace una Captura."""
         self.match('COMANDO_IO') # Captura
         self.match('SEPARADOR') # .
+        
+        captura_type_token = self.current_token
         self.match('TIPO_DATO') # Entero, Texto, etc
+        
+        # Análisis Semántico: Validar que el tipo de Captura coincida con el tipo de la variable
+        if captura_type_token.value != var_type:
+            raise SemanticErrorCosteñol(
+                f"Error Semántico: Se intenta capturar un '{captura_type_token.value}' en la variable '{name_token.value}' que es de tipo '{var_type}'.",
+                captura_type_token
+            )
+            
         self.match('PARENTESIS_ABRE') # (
         self.match('PARENTESIS_CIERRA') # )
         self.match('DELIMITADOR_FIN') # ;
@@ -113,14 +145,31 @@ class Parser:
         """Regla 4: [COMANDO_IO] [SEPARADOR] [TIPO_DATO] [PARENTESIS_ABRE] [CADENA_TEXTO/IDENTIFICADOR] [PARENTESIS_CIERRA] [DELIMITADOR_FIN]"""
         self.match('COMANDO_IO')
         self.match('SEPARADOR')
+        
+        msg_type_token = self.current_token
         self.match('TIPO_DATO')
         self.match('PARENTESIS_ABRE')
         
         # Permitimos imprimir tanto un string literal como una variable
         if self.current_token and self.current_token.type == 'CADENA_TEXTO':
+            # Análisis Semántico: Verificar que si se pasa una cadena, Mensaje sea de Texto
+            if msg_type_token.value != 'Texto':
+                 raise SemanticErrorCosteñol(
+                    f"Error Semántico: 'Mensaje.{msg_type_token.value}' no puede imprimir una cadena de Texto directa.",
+                    msg_type_token
+                )
             self.match('CADENA_TEXTO')
         elif self.current_token and self.current_token.type == 'IDENTIFICADOR':
+            id_token = self.current_token
             self.match('IDENTIFICADOR')
+            
+            # Análisis Semántico: Validar variable y tipo
+            var_type = self.symtab.lookup(id_token.value, id_token)
+            if var_type != msg_type_token.value:
+                raise SemanticErrorCosteñol(
+                    f"Error Semántico: 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
+                    id_token
+                )
         else:
             raise SyntaxErrorCosteñol(
                 "Error Sintáctico: El Mensaje debe contener una Cadena de Texto o un Identificador.",
@@ -133,33 +182,54 @@ class Parser:
     def parse_expresion(self):
         """
         Parsea expresiones matemáticas simples.
-        Una expresión tiene al menos un 'termino', seguido de opcionalmente operadores y otros terminos.
+        Retorna el tipo de dato inferido de la expresión (ej: 'Entero', 'Real').
         """
-        self.parse_termino()
+        left_type = self.parse_termino()
         
         while self.current_token and self.current_token.type == 'OPERADOR_ARITMETICO':
+            op_token = self.current_token
             self.match('OPERADOR_ARITMETICO')
-            self.parse_termino()
+            right_type = self.parse_termino()
+            
+            # Análisis Semántico: Validar operaciones
+            if left_type == 'Texto' or right_type == 'Texto':
+                 raise SemanticErrorCosteñol(
+                    "Error Semántico: No se permiten operaciones aritméticas con cadenas de Texto.",
+                    op_token
+                )
+            if left_type == 'Real' or right_type == 'Real':
+                left_type = 'Real' # Promoción a Real
+            else:
+                left_type = 'Entero'
+                
+        return left_type
 
     def parse_termino(self):
         """
-        Un término puede ser un número (entero/real), un identificador (variable), un string, o una sub-expresión entre paréntesis.
+        Retorna el tipo del término analizado.
         """
         if not self.current_token:
             raise SyntaxErrorCosteñol("Error Sintáctico: Expresión incompleta, se llegó al fin del archivo.", None)
             
         if self.current_token.type == 'NUMERO_ENTERO':
             self.match('NUMERO_ENTERO')
+            return 'Entero'
         elif self.current_token.type == 'NUMERO_REAL':
             self.match('NUMERO_REAL')
+            return 'Real'
         elif self.current_token.type == 'CADENA_TEXTO':
             self.match('CADENA_TEXTO')
+            return 'Texto'
         elif self.current_token.type == 'IDENTIFICADOR':
+            id_token = self.current_token
             self.match('IDENTIFICADOR')
+            # Retorna el tipo de la variable desde la tabla de símbolos
+            return self.symtab.lookup(id_token.value, id_token)
         elif self.current_token.type == 'PARENTESIS_ABRE':
             self.match('PARENTESIS_ABRE')
-            self.parse_expresion()
+            expr_type = self.parse_expresion()
             self.match('PARENTESIS_CIERRA')
+            return expr_type
         else:
             raise SyntaxErrorCosteñol(
                 f"Error Sintáctico: Se esperaba un número, identificador o cadena en la expresión. Se encontró '{self.current_token.value}'.",
