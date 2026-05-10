@@ -17,20 +17,17 @@ def run_custom_tests():
     suite_lexer = loader.loadTestsFromTestCase(TestLexer)
     suite_parser = loader.loadTestsFromTestCase(TestParser)
     
-    all_tests = unittest.TestSuite([suite_lexer, suite_parser])
-    
     passed = 0
     failed = 0
     
-    for test in all_tests:
-        # Algunos test pueden venir envueltos si es un TestSuite, así que los desglosamos
-        for t in test:
-            test_name = t._testMethodName
-            description = t.shortDescription() or test_name
-            
-            # Ejecutar la prueba individualmente
-            result = t.defaultTestResult()
-            t.run(result)
+    def run_suite(suite, name):
+        nonlocal passed, failed
+        print(f"\n--- Pruebas de {name} ---")
+        for test in suite:
+            test_name = test._testMethodName
+            description = test.shortDescription() or test_name
+            result = test.defaultTestResult()
+            test.run(result)
             
             if result.wasSuccessful():
                 print(f"[OK]    | {description}")
@@ -38,6 +35,9 @@ def run_custom_tests():
             else:
                 print(f"[FALLO] | {description}")
                 failed += 1
+
+    run_suite(suite_lexer, "Analizador Léxico")
+    run_suite(suite_parser, "Analizador Sintáctico")
             
     print("\n----------------------------------------")
     print(" RESUMEN DE PRUEBAS ")

@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext, messagebox
 import sys
 import os
 
@@ -153,10 +153,13 @@ class CompilerGUI(tk.Tk):
             parser = Parser(tokens)
             parser.parse()
             
-            self.lbl_error.config(text=f"✅ Análisis Léxico y Sintáctico exitoso. {len(tokens)} tokens validados.", fg="#89D185") # Verde VSCode
+            msg = f"✅ Análisis Léxico y Sintáctico exitoso. {len(tokens)} tokens validados."
+            self.lbl_error.config(text=msg, fg="#89D185") # Verde VSCode
+            messagebox.showinfo("Éxito", msg)
             
         except LexicalError as e:
             self.lbl_error.config(text=str(e), fg=self.error_color)
+            messagebox.showerror("Error Léxico", str(e))
         except SyntaxErrorCosteñol as e:
             # Seleccionar en la tabla el token que causó el error si es posible
             if e.token:
@@ -168,6 +171,7 @@ class CompilerGUI(tk.Tk):
                         self.tree.see(item)
                         break
             self.lbl_error.config(text=str(e.message), fg=self.error_color)
+            messagebox.showerror("Error Sintáctico", str(e.message))
             
 def start_app():
     try:
