@@ -183,9 +183,9 @@ class CompilerGUI(tk.Tk):
         self.tree.heading('token', text='Tipo de Token')
         self.tree.heading('lexema', text='Lexema (Valor)')
         
-        self.tree.column('linea', width=50, anchor=tk.W)
+        self.tree.column('linea', width=70, anchor=tk.W)
         self.tree.column('token', width=200, anchor=tk.W)
-        self.tree.column('lexema', width=300, anchor=tk.W)
+        self.tree.column('lexema', width=400, anchor=tk.W)
         
         # Scrollbar para la tabla
         tree_scrollbar = ttk.Scrollbar(bottom_frame, orient=tk.VERTICAL, command=self.tree.yview)
@@ -276,7 +276,7 @@ class CompilerGUI(tk.Tk):
             # 1. Análisis Léxico
             tokens = tokenize(codigo)
             
-            # Poblar tabla
+            # Poblar tabla (sin columna)
             for t in tokens:
                 self.tree.insert('', tk.END, values=(t.line, t.type, t.value))
                 
@@ -314,7 +314,8 @@ class CompilerGUI(tk.Tk):
                 self._marcar_error_en_texto(e.token)
                 for item in self.tree.get_children():
                     val = self.tree.item(item, 'values')
-                    if int(val[0]) == e.token.line and int(val[1]) == e.token.column:
+                    # Ya no comparamos columna, solo linea y lexema para ser precisos
+                    if int(val[0]) == e.token.line and str(val[2]) == str(e.token.value):
                         self.tree.selection_set(item)
                         self.tree.focus(item)
                         self.tree.see(item)
@@ -334,7 +335,8 @@ class CompilerGUI(tk.Tk):
                 self._marcar_error_en_texto(e.token)
                 for item in self.tree.get_children():
                     val = self.tree.item(item, 'values')
-                    if int(val[0]) == e.token.line and int(val[1]) == e.token.column:
+                    # Ya no comparamos columna, solo linea y lexema
+                    if int(val[0]) == e.token.line and str(val[2]) == str(e.token.value):
                         self.tree.selection_set(item)
                         self.tree.focus(item)
                         self.tree.see(item)
