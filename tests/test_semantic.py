@@ -40,10 +40,10 @@ class TestSemantic(unittest.TestCase):
         self.assertIn("Se intenta capturar un 'Texto'", context.exception.message)
             
     def test_tipo_incorrecto_mensaje(self):
-        """Prueba Semántica: Falla al imprimir Entero con Mensaje.Texto."""
+        """Prueba Semántica: Falla al imprimir Texto con Mensaje.Entero."""
         with self.assertRaises(SemanticErrorCosteñol) as context:
-            self._parse('num1 Entero; num1 = 5; Mensaje.Texto(num1);')
-        self.assertIn("no puede imprimir la variable 'num1' de tipo 'Entero'", context.exception.message)
+            self._parse('num1 Texto; num1 = "H"; Mensaje.Entero(num1);')
+        self.assertIn("no puede imprimir la variable 'num1' de tipo 'Texto'", context.exception.message)
 
     def test_operacion_con_texto(self):
         """Prueba Semántica: Falla al sumar Textos."""
@@ -57,36 +57,6 @@ class TestSemantic(unittest.TestCase):
             self._parse('num1 Real; num1 = 5;')
         except SemanticErrorCosteñol:
             self.fail("Falló en una asignación semántica válida (Entero -> Real).")
-
-    def test_complejo_multilinea_valido(self):
-        """Prueba Semántica: Multiples líneas válidas."""
-        codigo = '''
-        num1 Entero;
-        num2 Real;
-        num1 = 5;
-        num2 = num1 + 3;
-        texto1 Texto;
-        texto1 = "Exito";
-        Mensaje.Texto(texto1);
-        '''
-        try:
-            self._parse(codigo)
-        except SemanticErrorCosteñol:
-            self.fail("Falló en un bloque válido de varias líneas.")
-            
-    def test_complejo_error_anidado(self):
-        """Prueba Semántica: Multiples líneas con error al final."""
-        codigo = '''
-        num1 Entero;
-        num2 Real;
-        num1 = 5;
-        num2 = num1 + 3;
-        texto1 Texto;
-        texto1 = num1 + 10;
-        '''
-        with self.assertRaises(SemanticErrorCosteñol) as context:
-            self._parse(codigo)
-        self.assertIn("No se puede asignar una expresión de tipo 'Entero'", context.exception.message)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,10 +1,9 @@
 class SemanticErrorCosteñol(Exception):
     """Excepción lanzada cuando hay un error semántico (lógico) en el código."""
     def __init__(self, message, token):
+        super().__init__(message)
         self.token = token
-        line = token.line if token else "Desconocida"
-        self.message = f"{message} (Línea: {line})"
-        super().__init__(self.message)
+        self.message = message
 
 class SymbolTable:
     """
@@ -21,7 +20,7 @@ class SymbolTable:
         """
         if name in self.symbols:
             raise SemanticErrorCosteñol(
-                f"Joda loco estas barrilete — La variable '{name}' ya fue declarada previamente.",
+                f"Joda loco estas barrilete: La variable '{name}' ya fue declarada previamente.",
                 token
             )
         self.symbols[name] = var_type
@@ -33,7 +32,7 @@ class SymbolTable:
         """
         if name not in self.symbols:
             raise SemanticErrorCosteñol(
-                f"Joda loco estas barrilete — La variable '{name}' no ha sido declarada.",
+                f"Joda loco estas barrilete: La variable '{name}' no ha sido declarada.",
                 token
             )
         return self.symbols[name]

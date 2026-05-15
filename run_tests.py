@@ -32,7 +32,7 @@ def run_custom_tests():
             test.run(result)
             
             if result.wasSuccessful():
-                print(f"Te vi bien ahí ✅ | {description}")
+                print(f"[{'Te vi bien ahí':^15}] | {description}")
                 passed += 1
             else:
                 print(f"[FALLO] | {description}")
@@ -50,7 +50,7 @@ def run_custom_tests():
     print(f"Fallidas:         {failed}")
     
     if failed == 0:
-        print("\n>>> belloooo antioquia 🎉 — TODAS LAS PRUEBAS PASARON EXITOSAMENTE <<<")
+        print("\n>>> belloooo antioquia <<<")
     else:
         print("\n>>> ALGUNAS PRUEBAS FALLARON. REVISA EL CÓDIGO. <<<")
 

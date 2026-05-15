@@ -14,6 +14,7 @@ class TokenType(Enum):
     DELIMITADOR_FIN = r';'
     PARENTESIS_ABRE = r'\('
     PARENTESIS_CIERRA = r'\)'
+    COMA = r','
     ESPACIOS = r'\s+'
     
 # Diccionario ordenado para la construcción del Regex maestro.
@@ -32,6 +33,7 @@ TOKEN_REGEX = [
     ('DELIMITADOR_FIN', TokenType.DELIMITADOR_FIN.value),
     ('PARENTESIS_ABRE', TokenType.PARENTESIS_ABRE.value),
     ('PARENTESIS_CIERRA', TokenType.PARENTESIS_CIERRA.value),
+    ('COMA', TokenType.COMA.value),
     ('ESPACIOS', TokenType.ESPACIOS.value),
 ]
 
