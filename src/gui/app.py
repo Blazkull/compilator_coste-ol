@@ -42,6 +42,9 @@ class CompilerGUI(tk.Tk):
         self.title("Compilador Costeñol - IDE")
         self.geometry("900x650")
         
+        # Guardamos el último error para detectar si el usuario repite el mismo error dos veces
+        self._ultimo_error = None
+        
         # Colores estilo VSCode Dark Theme
         self.bg_color = "#1E1E1E"
         self.fg_color = "#D4D4D4"
@@ -279,14 +282,32 @@ class CompilerGUI(tk.Tk):
             parser = Parser(tokens)
             parser.parse()
             
-            msg = f"✅ Análisis Léxico y Sintáctico exitoso. {len(tokens)} tokens validados."
+            self._ultimo_error = None  # Resetear historial de errores en éxito
+            msg = f"✅ aro, esa era — {len(tokens)} tokens validados."
             self.lbl_error.config(text=msg, fg="#89D185") # Verde VSCode
-            messagebox.showinfo("Éxito", msg)
+            messagebox.showinfo("monocuco 🎉", msg)
             
         except LexicalError as e:
+            error_key = str(e)
+            if self._ultimo_error == error_key:
+                # ¡Mismo error dos veces! — "joda rosa vas a seguir?"
+                self.editor.delete("1.0", tk.END)
+                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
+                self._ultimo_error = None
+                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
+                return
+            self._ultimo_error = error_key
             self.lbl_error.config(text=str(e), fg=self.error_color)
             messagebox.showerror("Error Léxico", str(e))
         except SyntaxErrorCosteñol as e:
+            error_key = str(e.message)
+            if self._ultimo_error == error_key:
+                self.editor.delete("1.0", tk.END)
+                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
+                self._ultimo_error = None
+                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
+                return
+            self._ultimo_error = error_key
             if e.token:
                 self._marcar_error_en_texto(e.token)
                 for item in self.tree.get_children():
@@ -299,6 +320,14 @@ class CompilerGUI(tk.Tk):
             self.lbl_error.config(text=str(e.message), fg=self.error_color)
             messagebox.showerror("Error Sintáctico", str(e.message))
         except SemanticErrorCosteñol as e:
+            error_key = str(e.message)
+            if self._ultimo_error == error_key:
+                self.editor.delete("1.0", tk.END)
+                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
+                self._ultimo_error = None
+                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
+                return
+            self._ultimo_error = error_key
             if getattr(e, 'token', None):
                 self._marcar_error_en_texto(e.token)
                 for item in self.tree.get_children():

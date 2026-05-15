@@ -30,7 +30,7 @@ class Parser:
             actual_type = self.current_token.type if self.current_token else "EOF (Fin de Archivo)"
             val = self.current_token.value if self.current_token else "Nada"
             raise SyntaxErrorCosteñol(
-                f"Error Sintáctico: Se esperaba '{expected_type}', pero se encontró '{actual_type}' ('{val}').",
+                f"mi llave barros schelotto — Se esperaba '{expected_type}', pero se encontró '{actual_type}' ('{val}').",
                 self.current_token
             )
 
@@ -52,7 +52,7 @@ class Parser:
             else:
                 # Si empieza con Captura directamente, es error, porque Captura debe asignarse a algo.
                 raise SyntaxErrorCosteñol(
-                    "Error Sintáctico: El comando 'Captura' debe ser asignado a una variable.",
+                    "mi llave barros schelotto — El comando 'Captura' debe ser asignado a una variable.",
                     self.current_token
                 )
 
@@ -67,17 +67,17 @@ class Parser:
                     self.parse_asignacion_o_captura()
                 else:
                     raise SyntaxErrorCosteñol(
-                        f"Error Sintáctico: Después del identificador se esperaba un Tipo de Dato o un '='. Se encontró '{next_token.value}'.",
+                        f"mi llave barros schelotto — Después del identificador se esperaba un Tipo de Dato o un '='. Se encontró '{next_token.value}'.",
                         next_token
                     )
             else:
                 raise SyntaxErrorCosteñol(
-                    "Error Sintáctico: Sentencia incompleta después del identificador.",
+                    "mi llave barros schelotto — Sentencia incompleta después del identificador.",
                     self.current_token
                 )
         else:
             raise SyntaxErrorCosteñol(
-                f"Error Sintáctico: Toda sentencia debe empezar con un Identificador o 'Mensaje'. Se encontró '{self.current_token.value}'.",
+                f"mi llave barros schelotto — Toda sentencia debe empezar con un Identificador o 'Mensaje'. Se encontró '{self.current_token.value}'.",
                 self.current_token
             )
 
@@ -118,7 +118,7 @@ class Parser:
                 # Permitir Entero a Real
                 if not (var_type == 'Real' and expr_type == 'Entero'):
                     raise SemanticErrorCosteñol(
-                        f"Error Semántico: No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
+                        f"Joda loco estas barrilete — No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
                         name_token
                     )
 
@@ -133,7 +133,7 @@ class Parser:
         # Análisis Semántico: Validar que el tipo de Captura coincida con el tipo de la variable
         if captura_type_token.value != var_type:
             raise SemanticErrorCosteñol(
-                f"Error Semántico: Se intenta capturar un '{captura_type_token.value}' en la variable '{name_token.value}' que es de tipo '{var_type}'.",
+                f"Joda loco estas barrilete — Se intenta capturar un '{captura_type_token.value}' en la variable '{name_token.value}' que es de tipo '{var_type}'.",
                 captura_type_token
             )
             
@@ -155,7 +155,7 @@ class Parser:
             # Análisis Semántico: Verificar que si se pasa una cadena, Mensaje sea de Texto
             if msg_type_token.value != 'Texto':
                  raise SemanticErrorCosteñol(
-                    f"Error Semántico: 'Mensaje.{msg_type_token.value}' no puede imprimir una cadena de Texto directa.",
+                    f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir una cadena de Texto directa.",
                     msg_type_token
                 )
             self.match('CADENA_TEXTO')
@@ -167,12 +167,12 @@ class Parser:
             var_type = self.symtab.lookup(id_token.value, id_token)
             if var_type != msg_type_token.value:
                 raise SemanticErrorCosteñol(
-                    f"Error Semántico: 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
+                    f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
                     id_token
                 )
         else:
             raise SyntaxErrorCosteñol(
-                "Error Sintáctico: El Mensaje debe contener una Cadena de Texto o un Identificador.",
+                "mi llave barros schelotto — El Mensaje debe contener una Cadena de Texto o un Identificador.",
                 self.current_token
             )
             
@@ -194,7 +194,7 @@ class Parser:
             # Análisis Semántico: Validar operaciones
             if left_type == 'Texto' or right_type == 'Texto':
                  raise SemanticErrorCosteñol(
-                    "Error Semántico: No se permiten operaciones aritméticas con cadenas de Texto.",
+                    "Joda loco estas barrilete — No se permiten operaciones aritméticas con cadenas de Texto.",
                     op_token
                 )
             if left_type == 'Real' or right_type == 'Real':
@@ -209,7 +209,7 @@ class Parser:
         Retorna el tipo del término analizado.
         """
         if not self.current_token:
-            raise SyntaxErrorCosteñol("Error Sintáctico: Expresión incompleta, se llegó al fin del archivo.", None)
+            raise SyntaxErrorCosteñol("mi llave barros schelotto — Expresión incompleta, se llegó al fin del archivo.", None)
             
         if self.current_token.type == 'NUMERO_ENTERO':
             self.match('NUMERO_ENTERO')
@@ -232,6 +232,6 @@ class Parser:
             return expr_type
         else:
             raise SyntaxErrorCosteñol(
-                f"Error Sintáctico: Se esperaba un número, identificador o cadena en la expresión. Se encontró '{self.current_token.value}'.",
+                f"mi llave barros schelotto — Se esperaba un número, identificador o cadena en la expresión. Se encontró '{self.current_token.value}'.",
                 self.current_token
             )

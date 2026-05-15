@@ -20,7 +20,7 @@ class SymbolTable:
         """
         if name in self.symbols:
             raise SemanticErrorCosteñol(
-                f"Error Semántico: La variable '{name}' ya fue declarada previamente.",
+                f"Joda loco estas barrilete — La variable '{name}' ya fue declarada previamente.",
                 token
             )
         self.symbols[name] = var_type
@@ -32,7 +32,7 @@ class SymbolTable:
         """
         if name not in self.symbols:
             raise SemanticErrorCosteñol(
-                f"Error Semántico: La variable '{name}' no ha sido declarada.",
+                f"Joda loco estas barrilete — La variable '{name}' no ha sido declarada.",
                 token
             )
         return self.symbols[name]
