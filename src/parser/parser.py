@@ -143,7 +143,7 @@ class Parser:
         self.match('DELIMITADOR_FIN') # ;
 
     def parse_mensaje(self):
-        """Regla 4: [COMANDO_IO] [SEPARADOR] [TIPO_DATO] [PARENTESIS_ABRE] [CADENA_TEXTO/IDENTIFICADOR] [PARENTESIS_CIERRA] [DELIMITADOR_FIN]"""
+        """Regla 4: [COMANDO_IO] [SEPARADOR] [TIPO_DATO] [PARENTESIS_ABRE] [CADENA_TEXTO/IDENTIFICADOR] ([COMA] [CADENA_TEXTO/IDENTIFICADOR])* [PARENTESIS_CIERRA] [DELIMITADOR_FIN]"""
         self.match('COMANDO_IO')
         self.match('SEPARADOR')
         
@@ -151,31 +151,40 @@ class Parser:
         self.match('TIPO_DATO')
         self.match('PARENTESIS_ABRE')
         
-        # Permitimos imprimir tanto un string literal como una variable
-        if self.current_token and self.current_token.type == 'CADENA_TEXTO':
-            # Análisis Semántico: Verificar que si se pasa una cadena, Mensaje sea de Texto
-            if msg_type_token.value != 'Texto':
-                 raise SemanticErrorCosteñol(
-                    f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir una cadena de Texto directa.",
-                    msg_type_token
+        def parse_argument():
+            if self.current_token and self.current_token.type == 'CADENA_TEXTO':
+                # Análisis Semántico: Verificar que si se pasa una cadena, Mensaje sea de Texto
+                if msg_type_token.value != 'Texto':
+                     raise SemanticErrorCosteñol(
+                        f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir una cadena de Texto directa.",
+                        msg_type_token
+                    )
+                self.match('CADENA_TEXTO')
+            elif self.current_token and self.current_token.type == 'IDENTIFICADOR':
+                id_token = self.current_token
+                self.match('IDENTIFICADOR')
+                
+                # Análisis Semántico: Validar variable y tipo
+                var_type = self.symtab.lookup(id_token.value, id_token)
+                # Mensaje.Texto puede imprimir cualquier variable (actúa como concatenación)
+                if msg_type_token.value != 'Texto' and var_type != msg_type_token.value:
+                    raise SemanticErrorCosteñol(
+                        f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
+                        id_token
+                    )
+            else:
+                raise SyntaxErrorCosteñol(
+                    "mi llave barros schelotto — El Mensaje debe contener una Cadena de Texto o un Identificador.",
+                    self.current_token
                 )
-            self.match('CADENA_TEXTO')
-        elif self.current_token and self.current_token.type == 'IDENTIFICADOR':
-            id_token = self.current_token
-            self.match('IDENTIFICADOR')
-            
-            # Análisis Semántico: Validar variable y tipo
-            var_type = self.symtab.lookup(id_token.value, id_token)
-            if var_type != msg_type_token.value:
-                raise SemanticErrorCosteñol(
-                    f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
-                    id_token
-                )
-        else:
-            raise SyntaxErrorCosteñol(
-                "mi llave barros schelotto — El Mensaje debe contener una Cadena de Texto o un Identificador.",
-                self.current_token
-            )
+
+        # Parsear el primer argumento
+        parse_argument()
+        
+        # Parsear argumentos adicionales separados por COMA
+        while self.current_token and self.current_token.type == 'COMA':
+            self.match('COMA')
+            parse_argument()
             
         self.match('PARENTESIS_CIERRA')
         self.match('DELIMITADOR_FIN')
