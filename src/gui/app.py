@@ -298,7 +298,7 @@ class CompilerGUI(tk.Tk):
                 return
             self._ultimo_error = error_key
             self.lbl_error.config(text=str(e), fg=self.error_color)
-            messagebox.showerror("Error Léxico", str(e))
+            messagebox.showerror("Hey loco que pasa vale mia 😤", str(e))
         except SyntaxErrorCosteñol as e:
             error_key = str(e.message)
             if self._ultimo_error == error_key:
@@ -318,7 +318,7 @@ class CompilerGUI(tk.Tk):
                         self.tree.see(item)
                         break
             self.lbl_error.config(text=str(e.message), fg=self.error_color)
-            messagebox.showerror("Error Sintáctico", str(e.message))
+            messagebox.showerror("mi llave barros schelotto 🚨", str(e.message))
         except SemanticErrorCosteñol as e:
             error_key = str(e.message)
             if self._ultimo_error == error_key:
@@ -338,7 +338,7 @@ class CompilerGUI(tk.Tk):
                         self.tree.see(item)
                         break
             self.lbl_error.config(text=str(e.message), fg=self.error_color)
-            messagebox.showerror("Error Semántico", str(e.message))
+            messagebox.showerror("Joda loco estas barrilete 💀", str(e.message))
             
 def start_app():
     try:
