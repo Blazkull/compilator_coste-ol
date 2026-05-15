@@ -176,16 +176,14 @@ class CompilerGUI(tk.Tk):
         lbl_console.pack(anchor=tk.W, padx=5, pady=2)
         
         # Crear tabla para tokens
-        columnas = ('linea', 'columna', 'token', 'lexema')
+        columnas = ('linea', 'token', 'lexema')
         self.tree = ttk.Treeview(bottom_frame, columns=columnas, show='headings', selectmode="browse")
         
         self.tree.heading('linea', text='Línea')
-        self.tree.heading('columna', text='Columna')
         self.tree.heading('token', text='Tipo de Token')
         self.tree.heading('lexema', text='Lexema (Valor)')
         
         self.tree.column('linea', width=50, anchor=tk.W)
-        self.tree.column('columna', width=60, anchor=tk.W)
         self.tree.column('token', width=200, anchor=tk.W)
         self.tree.column('lexema', width=300, anchor=tk.W)
         
@@ -280,7 +278,7 @@ class CompilerGUI(tk.Tk):
             
             # Poblar tabla
             for t in tokens:
-                self.tree.insert('', tk.END, values=(t.line, t.column, t.type, t.value))
+                self.tree.insert('', tk.END, values=(t.line, t.type, t.value))
                 
             # 2. Análisis Sintáctico y Semántico
             parser = Parser(tokens)
