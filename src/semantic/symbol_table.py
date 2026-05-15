@@ -1,9 +1,10 @@
 class SemanticErrorCosteñol(Exception):
     """Excepción lanzada cuando hay un error semántico (lógico) en el código."""
     def __init__(self, message, token):
-        super().__init__(message)
         self.token = token
-        self.message = message
+        line = token.line if token else "Desconocida"
+        self.message = f"{message} (Línea: {line})"
+        super().__init__(self.message)
 
 class SymbolTable:
     """

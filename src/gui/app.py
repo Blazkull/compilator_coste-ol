@@ -158,6 +158,8 @@ class CompilerGUI(tk.Tk):
         self.editor.bind("<Button-1>", self._on_scroll)
         self.editor.bind("<Return>", self._on_scroll)
         self.editor.bind("<Configure>", self._on_scroll)
+        self.editor.bind("<Key>", self._on_scroll)
+        self.editor.bind("<<Modified>>", self._on_scroll)
         
         # Código inicial de ejemplo
         codigo_ejemplo = "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");"
@@ -215,6 +217,8 @@ class CompilerGUI(tk.Tk):
 
     def _on_scroll(self, event=None):
         self.linenumbers.redraw()
+        if event and event.type == "<<Modified>>":
+            self.editor.edit_modified(False)
 
     def _highlight_syntax(self):
         # Limpiar tags actuales
@@ -300,7 +304,7 @@ class CompilerGUI(tk.Tk):
             self.lbl_error.config(text=str(e), fg=self.error_color)
             messagebox.showerror("Hey loco que pasa vale mia 😤", str(e))
         except SyntaxErrorCosteñol as e:
-            error_key = str(e.message)
+            error_key = str(e)
             if self._ultimo_error == error_key:
                 self.editor.delete("1.0", tk.END)
                 self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
@@ -317,10 +321,10 @@ class CompilerGUI(tk.Tk):
                         self.tree.focus(item)
                         self.tree.see(item)
                         break
-            self.lbl_error.config(text=str(e.message), fg=self.error_color)
-            messagebox.showerror("mi llave barros schelotto 🚨", str(e.message))
+            self.lbl_error.config(text=str(e), fg=self.error_color)
+            messagebox.showerror("mi llave barros schelotto 🚨", str(e))
         except SemanticErrorCosteñol as e:
-            error_key = str(e.message)
+            error_key = str(e)
             if self._ultimo_error == error_key:
                 self.editor.delete("1.0", tk.END)
                 self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
@@ -337,8 +341,8 @@ class CompilerGUI(tk.Tk):
                         self.tree.focus(item)
                         self.tree.see(item)
                         break
-            self.lbl_error.config(text=str(e.message), fg=self.error_color)
-            messagebox.showerror("Joda loco estas barrilete 💀", str(e.message))
+            self.lbl_error.config(text=str(e), fg=self.error_color)
+            messagebox.showerror("Joda loco estas barrilete 💀", str(e))
             
 def start_app():
     try:

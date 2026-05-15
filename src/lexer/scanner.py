@@ -3,7 +3,7 @@ from .tokens import MASTER_REGEX
 
 class LexicalError(Exception):
     def __init__(self, message, line, column):
-        super().__init__(f"Hey loco que pasa vale mia — línea {line}, columna {column}: {message}")
+        super().__init__(f"Hey loco que pasa vale mia — línea {line}: {message}")
         self.line = line
         self.column = column
 
