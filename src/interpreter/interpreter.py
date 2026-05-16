@@ -23,7 +23,7 @@ class Interpreter:
         from src.parser.parser import (
             DeclarationNode, AssignmentNode, CaptureNode, 
             MessageNode, BinaryOpNode, LiteralNode, VariableNode,
-            IfNode, WhileNode, ComparisonNode
+            IfNode, WhileNode, ComparisonNode, ConcatenationNode
         )
 
         if isinstance(node, DeclarationNode):
@@ -35,18 +35,8 @@ class Interpreter:
             else: self.memory[node.name] = None
             
         elif isinstance(node, AssignmentNode):
-            if node.is_concatenation:
-                parts = []
-                for val_node in node.value_node:
-                    val = self.evaluate(val_node)
-                    if isinstance(val, bool):
-                        parts.append("Verdad" if val else "Mentira")
-                    else:
-                        parts.append(str(val))
-                self.memory[node.name] = "".join(parts)
-            else:
-                val = self.evaluate(node.value_node)
-                self.memory[node.name] = val
+            val = self.evaluate(node.value_node)
+            self.memory[node.name] = val
             
         elif isinstance(node, CaptureNode):
             # Solicitar entrada al usuario a través de la GUI
@@ -89,7 +79,7 @@ class Interpreter:
 
     def evaluate(self, node):
         from src.parser.parser import (
-            BinaryOpNode, LiteralNode, VariableNode, ComparisonNode
+            BinaryOpNode, LiteralNode, VariableNode, ComparisonNode, ConcatenationNode
         )
         
         if isinstance(node, LiteralNode):
@@ -110,6 +100,16 @@ class Interpreter:
             if node.op == '/': 
                 if right == 0: raise Exception("División por cero, mi llave.")
                 return left / right
+
+        elif isinstance(node, ConcatenationNode):
+            parts = []
+            for child in node.nodes:
+                val = self.evaluate(child)
+                if isinstance(val, bool):
+                    parts.append("Verdad" if val else "Mentira")
+                else:
+                    parts.append(str(val))
+            return "".join(parts)
 
         elif isinstance(node, ComparisonNode):
             left = self.evaluate(node.left)

@@ -22,10 +22,13 @@ class DeclarationNode(ASTNode):
         self.var_type = var_type
 
 class AssignmentNode(ASTNode):
-    def __init__(self, name, value_node, is_concatenation=False):
+    def __init__(self, name, value_node):
         self.name = name
         self.value_node = value_node
-        self.is_concatenation = is_concatenation
+
+class ConcatenationNode(ASTNode):
+    def __init__(self, nodes):
+        self.nodes = nodes
 
 class CaptureNode(ASTNode):
     def __init__(self, name, var_type):
@@ -242,7 +245,6 @@ class Parser:
             val_node, expr_type = self.parse_expresion()
             values.append(val_node)
             
-            is_concat = False
             while self.current_token and self.current_token.type == 'COMA':
                 if var_type != 'Texto':
                     raise SemanticErrorCosteñol(
@@ -252,14 +254,11 @@ class Parser:
                 self.match('COMA')
                 v_node, _ = self.parse_expresion()
                 values.append(v_node)
-                is_concat = True
 
             self.match('DELIMITADOR_FIN')
             
-            # Si no es concatenación, enviamos solo el primer nodo (comportamiento normal)
-            final_value = values if is_concat else values[0]
-            
-            return AssignmentNode(name_token.value, final_value, is_concatenation=is_concat)
+            final_value = ConcatenationNode(values) if len(values) > 1 else values[0]
+            return AssignmentNode(name_token.value, final_value)
 
     def parse_captura_tail(self, var_type, name_token):
         self.match('COMANDO_IO') # Captura
@@ -359,9 +358,18 @@ class Parser:
             return VariableNode(id_token.value, var_type), var_type
         elif self.current_token.type == 'PARENTESIS_ABRE':
             self.match('PARENTESIS_ABRE')
+            nodes = []
             node, expr_type = self.parse_expresion()
+            nodes.append(node)
+            
+            while self.current_token and self.current_token.type == 'COMA':
+                self.match('COMA')
+                next_node, _ = self.parse_expresion()
+                nodes.append(next_node)
+                expr_type = 'Texto' # Si hay comas, el resultado es Texto
+            
             self.match('PARENTESIS_CIERRA')
-            return node, expr_type
+            return (ConcatenationNode(nodes) if len(nodes) > 1 else node), expr_type
         else:
             raise SyntaxErrorCosteñol(
                 f"mi llave barros schelotto — Se esperaba un número, identificador o cadena en la expresión. Se encontró '{self.current_token.value}'.",
