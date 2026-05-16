@@ -80,7 +80,11 @@ class CompilerGUI(tk.Tk):
 
     def _crear_widgets(self):
         top_frame = tk.Frame(self, bg=self.highlight_bg, height=40); top_frame.pack(fill=tk.X, side=tk.TOP); top_frame.pack_propagate(False)
-        tk.Button(top_frame, text="🔍 Analizar", bg=self.accent_color, fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, padx=10, command=self.analizar_codigo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
+        btn_help = tk.Button(top_frame, text="❓", bg=self.highlight_bg, fg=self.fg_color, font=('Segoe UI', 11, 'bold'), borderwidth=0, padx=10, command=self.mostrar_ayuda, cursor="hand2")
+        btn_help.pack(side=tk.LEFT, padx=5, pady=5)
+
+        btn_run = tk.Button(top_frame, text="🔍 Analizar", bg=self.accent_color, fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, padx=10, command=self.analizar_codigo, cursor="hand2")
+        btn_run.pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(top_frame, text="▶ Ejecutar", bg="#28A745", fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, padx=10, command=self.ejecutar_codigo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(top_frame, text="📦 Guardar .pqek", bg=self.highlight_bg, fg=self.fg_color, font=('Segoe UI', 9), borderwidth=0, padx=10, command=self.guardar_archivo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(top_frame, text="❌ Cerrar Pestaña", bg=self.highlight_bg, fg=self.error_color, font=('Segoe UI', 9), borderwidth=0, padx=10, command=self.cerrar_pestana_actual, cursor="hand2").pack(side=tk.RIGHT, padx=5, pady=5)
@@ -264,6 +268,42 @@ class CompilerGUI(tk.Tk):
             self.notebook_console.select(self.tab_terminal); self._append_to_terminal(f"🚀 Ejecutando: {os.path.basename(path)}\n")
             threading.Thread(target=lambda: Interpreter(output_callback=lambda m: self.after(0, self._append_to_terminal, m + "\n"), input_callback=self._request_input).execute(data['ast']), daemon=True).start()
         except Exception as e: messagebox.showerror("Error", str(e))
+
+    def mostrar_ayuda(self):
+        """Muestra una ventana con un ejemplo de código."""
+        ayuda_win = tk.Toplevel(self)
+        ayuda_win.title("Ejemplo de la Vuelta")
+        ayuda_win.geometry("500x550")
+        ayuda_win.configure(bg=self.bg_color)
+        
+        tk.Label(ayuda_win, text="Ejemplo de Código Costeñol", bg=self.highlight_bg, fg="white", font=('Segoe UI', 10, 'bold'), pady=10).pack(fill=tk.X)
+        
+        txt_ayuda = scrolledtext.ScrolledText(ayuda_win, bg=self.panel_bg, fg=self.fg_color, font=('Consolas', 11), padx=10, pady=10)
+        txt_ayuda.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        
+        ejemplo = """// Ejemplo Costeñol: Contador
+contador Entero;
+limite Entero;
+
+contador = 0;
+Mensaje.Texto("Hasta cuanto quieres contar, mi llave?");
+limite = Captura.Entero();
+
+Mientras (contador < limite) {
+    contador = contador + 1;
+    Mensaje.Texto("Contando:", contador);
+}
+
+Si (limite > 10) {
+    Mensaje.Texto("Joda, contaste bastante!");
+} Sino {
+    Mensaje.Texto("Breve, eso fue rápido.");
+}
+"""
+        txt_ayuda.insert(tk.END, ejemplo)
+        txt_ayuda.config(state='disabled')
+        
+        tk.Button(ayuda_win, text="¡Breve, ya entendí!", bg=self.accent_color, fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, pady=5, command=ayuda_win.destroy).pack(pady=10)
 
     def _on_terminal_enter(self, e):
         v = self.terminal_input.get(); self._append_to_terminal(v + "\n", "white"); self.terminal_input.delete(0, tk.END); self.terminal_input.config(state='disabled'); self.input_queue.put(v)

@@ -32,6 +32,9 @@ El formato **.pqek** es ahora el estándar universal del lenguaje:
 - **Sidebar:** Gestiona tus archivos directamente desde el panel izquierdo. Al hacer doble clic, el IDE "desempaqueta" el código para editarlo.
 - **Persistencia:** Guarda tus progresos con `Ctrl+S` directamente en formato de paquete.
 
+### ❓ Ayuda Rápida
+El IDE incluye un botón de **❓** en la barra superior que abre una ventana con un ejemplo de código funcional para que puedas aprender la sintaxis rápidamente.
+
 ### 🧠 Gramática Extendida
 - **Control de Flujo:** Soporte para bloques `Si`, `Sino` y bucles `Mientras`.
 - **Lógica:** Evaluación de comparadores (`==`, `!=`, `<`, `>`, `<=`, `>=`) y booleanos (`Verdad`, `Mentira`).
