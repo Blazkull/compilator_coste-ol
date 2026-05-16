@@ -21,23 +21,23 @@ compilator_costeñol/
 
 ---
 
-## 🚀 Nuevas Funcionalidades (V3.0 - Full .pqek)
+## 🚀 Nuevas Funcionalidades (V4.2 - Final Sprint)
 
-### 💻 Terminal Interactiva
-El IDE cuenta con una terminal integrada que permite entrada/salida en tiempo real y ejecución multihilo.
+### 💻 Terminal de Alto Rendimiento
+- **Entrada Continua:** El campo de texto de la terminal está siempre activo para una mejor experiencia de usuario.
+- **Auto-Limpieza:** Cada vez que ejecutas un código, la terminal se limpia automáticamente para evitar confusiones con resultados anteriores.
+- **Scroll Inteligente:** La salida siempre te muestra la última línea ejecutada.
 
 ### 📦 Control de la Vuelta (.pqek)
-El formato **.pqek** es ahora el estándar universal del lenguaje:
-- **Todo en uno:** Un archivo `.pqek` guarda tanto tu código fuente como el árbol (AST) listo para ejecutar.
-- **Sidebar:** Gestiona tus archivos directamente desde el panel izquierdo. Al hacer doble clic, el IDE "desempaqueta" el código para editarlo.
-- **Persistencia:** Guarda tus progresos con `Ctrl+S` directamente en formato de paquete.
+- **Empaquetado Total:** Los archivos `.pqek` ahora guardan el código fuente original. Al abrirlos desde el sidebar, recuperas tu trabajo instantáneamente.
+- **Gestión de Pestañas:** Abre múltiples archivos simultáneamente y ciérralos con el nuevo botón de cierre.
 
-### ❓ Ayuda Rápida
-El IDE incluye un botón de **❓** en la barra superior que abre una ventana con un ejemplo de código funcional para que puedas aprender la sintaxis rápidamente.
+### ❓ Ayuda y Ejemplos
+- **Botón de Ayuda:** Acceso instantáneo a la sintaxis del lenguaje con un ejemplo funcional de contador interactivo.
 
-### 🧠 Gramática Extendida
-- **Control de Flujo:** Soporte para bloques `Si`, `Sino` y bucles `Mientras`.
-- **Lógica:** Evaluación de comparadores (`==`, `!=`, `<`, `>`, `<=`, `>=`) y booleanos (`Verdad`, `Mentira`).
+### 🧠 Gramática y Lógica
+- **Concatenación con Comas:** Soporte extendido para unir textos usando comas `,` en cualquier parte del código, incluyendo dentro de paréntesis.
+- **Tipado Fuerte:** Validación semántica para asegurar que las operaciones se realicen entre tipos compatibles.
 - **Comentarios:** Ahora puedes comentar tu código usando `//` (resaltados en verde).
 - **Concatenación:** El operador de unión es la coma `,` (ej. `Respuesta = "Hola ", nombre;`). El signo `+` queda reservado solo para números.
 
