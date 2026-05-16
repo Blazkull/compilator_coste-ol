@@ -223,6 +223,17 @@ class CompilerGUI(tk.Tk):
     def ejecutar_codigo(self):
         ast = self.analizar_codigo()
         if not ast: return
+        
+        # Limpiar terminal antes de iniciar
+        self.terminal_output.config(state='normal')
+        self.terminal_output.delete("1.0", tk.END)
+        self.terminal_output.config(state='disabled')
+        
+        # Vaciar cola de entrada
+        while not self.input_queue.empty():
+            try: self.input_queue.get_nowait()
+            except: break
+
         from src.interpreter.interpreter import Interpreter
         self.notebook_console.select(self.tab_terminal); self._append_to_terminal("🚀 Iniciando...\n\n")
         threading.Thread(target=lambda: Interpreter(lambda m: self.after(0, self._append_to_terminal, m + "\n"), self._request_input).execute(ast), daemon=True).start()
