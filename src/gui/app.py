@@ -413,5 +413,9 @@ class CompilerGUI(tk.Tk):
         self.after(0, lambda: (self.notebook_console.select(self.tab_terminal), self._append_to_terminal(f"📥 {name} ({var_type}): ", "#569CD6"), self.terminal_input.config(state='normal'), self.terminal_input.focus_set()))
         return self.input_queue.get()
 
+def start_app():
+    app = CompilerGUI()
+    app.mainloop()
+
 if __name__ == "__main__":
-    CompilerGUI().mainloop()
+    start_app()
