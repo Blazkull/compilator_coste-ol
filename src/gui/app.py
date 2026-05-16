@@ -3,6 +3,8 @@ from tkinter import ttk, scrolledtext, messagebox
 import sys
 import os
 import ctypes
+import threading
+import queue
 
 # Asegurar que podemos importar el lexer
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -104,13 +106,29 @@ class CompilerGUI(tk.Tk):
         top_frame.pack(fill=tk.X, side=tk.TOP)
         top_frame.pack_propagate(False)
         
-        btn_run = tk.Button(top_frame, text="▶ Analizar Código", 
+        btn_run = tk.Button(top_frame, text="🔍 Analizar", 
                             bg=self.accent_color, fg="white", 
                             font=('Segoe UI', 10, 'bold'),
                             borderwidth=0, padx=15, pady=5,
                             command=self.analizar_codigo,
                             cursor="hand2")
         btn_run.pack(side=tk.LEFT, padx=10, pady=5)
+
+        btn_exec = tk.Button(top_frame, text="▶ Ejecutar", 
+                            bg="#28A745", fg="white", 
+                            font=('Segoe UI', 10, 'bold'),
+                            borderwidth=0, padx=15, pady=5,
+                            command=self.ejecutar_codigo,
+                            cursor="hand2")
+        btn_exec.pack(side=tk.LEFT, padx=5, pady=5)
+
+        btn_tokens = tk.Button(top_frame, text="🔍 Ver Tokens", 
+                               bg=self.highlight_bg, fg=self.fg_color, 
+                               font=('Segoe UI', 10),
+                               borderwidth=0, padx=10, pady=5,
+                               command=lambda: self.notebook.select(self.tab_tokens),
+                               cursor="hand2")
+        btn_tokens.pack(side=tk.RIGHT, padx=20, pady=5)
         
         btn_close = tk.Button(top_frame, text="⏹ Cerrar", 
                               bg=self.error_color, fg="white", 
@@ -162,22 +180,73 @@ class CompilerGUI(tk.Tk):
         self.editor.bind("<<Modified>>", self._on_scroll)
         
         # Código inicial de ejemplo
-        codigo_ejemplo = "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");"
+        codigo_ejemplo = """// Ejemplo Costeñol: Contador
+contador Entero;
+limite Entero;
+
+contador = 0;
+Mensaje.Texto("Hasta cuanto quieres contar, mi llave?");
+limite = Captura.Entero();
+
+Mientras (contador < limite) {
+    contador = contador + 1;
+    Mensaje.Texto("Contando:", contador);
+}
+
+Si (limite > 10) {
+    Mensaje.Texto("Joda, contaste bastante!");
+} Sino {
+    Mensaje.Texto("Breve, eso fue rápido.");
+}"""
         self.editor.insert(tk.END, codigo_ejemplo)
         self.after(100, self._on_scroll)
         self.after(150, self._highlight_syntax)
         
-        # --- PANEL INFERIOR: RESULTADOS / CONSOLA ---
-        bottom_frame = tk.Frame(self, bg=self.panel_bg, height=250)
-        bottom_frame.pack(fill=tk.X, side=tk.BOTTOM)
-        bottom_frame.pack_propagate(False) # Mantener altura fija
+        # --- PANEL INFERIOR: RESULTADOS / CONSOLA (Notebook) ---
+        # Área de mensajes de error (encima del notebook)
+        self.lbl_error = tk.Label(self, text="", bg=self.bg_color, fg=self.error_color, font=('Consolas', 10, 'bold'))
+        self.lbl_error.pack(fill=tk.X, side=tk.TOP, pady=2)
         
-        lbl_console = tk.Label(bottom_frame, text="CONSOLA DE RESULTADOS (TOKENS)", bg=self.panel_bg, fg="#858585", font=('Consolas', 9))
-        lbl_console.pack(anchor=tk.W, padx=5, pady=2)
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill=tk.BOTH, side=tk.BOTTOM, expand=True)
+        
+        # PESTAÑA 1: TERMINAL
+        self.tab_terminal = tk.Frame(self.notebook, bg=self.panel_bg)
+        self.notebook.add(self.tab_terminal, text=" 💻 TERMINAL ")
+        
+        # Frame para entrada del usuario (empaquetar primero al fondo)
+        input_frame = tk.Frame(self.tab_terminal, bg=self.panel_bg)
+        input_frame.pack(fill=tk.X, side=tk.BOTTOM, padx=5, pady=5)
+        
+        tk.Label(input_frame, text=" > ", bg=self.panel_bg, fg=self.accent_color, font=('Consolas', 12, 'bold')).pack(side=tk.LEFT)
+        
+        self.terminal_input = tk.Entry(input_frame, 
+                                     bg=self.panel_bg, 
+                                     fg="white", 
+                                     insertbackground="white",
+                                     font=('Consolas', 12),
+                                     borderwidth=0)
+        self.terminal_input.pack(fill=tk.X, side=tk.LEFT, expand=True)
+        self.terminal_input.bind("<Return>", self._on_terminal_enter)
+        self.terminal_input.config(state='disabled')
+        
+        # Consola de salida (ocupa el resto del espacio)
+        self.terminal_output = scrolledtext.ScrolledText(self.tab_terminal, 
+                                                       bg=self.panel_bg, 
+                                                       fg="#CCCCCC",
+                                                       font=('Consolas', 11),
+                                                       borderwidth=0,
+                                                       state='disabled',
+                                                       padx=10, pady=5)
+        self.terminal_output.pack(fill=tk.BOTH, expand=True)
+        
+        # PESTAÑA 2: TOKENS
+        self.tab_tokens = tk.Frame(self.notebook, bg=self.panel_bg)
+        self.notebook.add(self.tab_tokens, text=" 🔍 TABLA DE TOKENS ")
         
         # Crear tabla para tokens
         columnas = ('linea', 'token', 'lexema')
-        self.tree = ttk.Treeview(bottom_frame, columns=columnas, show='headings', selectmode="browse")
+        self.tree = ttk.Treeview(self.tab_tokens, columns=columnas, show='headings', selectmode="browse")
         
         self.tree.heading('linea', text='Línea')
         self.tree.heading('token', text='Tipo de Token')
@@ -187,24 +256,62 @@ class CompilerGUI(tk.Tk):
         self.tree.column('token', width=200, anchor=tk.W)
         self.tree.column('lexema', width=400, anchor=tk.W)
         
-        # Scrollbar para la tabla
-        tree_scrollbar = ttk.Scrollbar(bottom_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        tree_scrollbar = ttk.Scrollbar(self.tab_tokens, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=tree_scrollbar.set)
         
         tree_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         
-        # Área de mensajes de error
-        self.lbl_error = tk.Label(bottom_frame, text="", bg=self.panel_bg, fg=self.error_color, font=('Consolas', 10, 'bold'))
-        self.lbl_error.pack(fill=tk.X, pady=2)
+        # Variables para manejo de ejecución e hilos
+        import queue
+        self.input_queue = queue.Queue()
+        self.executing = False
+
+    def _on_terminal_enter(self, event):
+        """Maneja cuando el usuario presiona Enter en la terminal."""
+        if self.terminal_input['state'] == 'disabled':
+            return
+            
+        val = self.terminal_input.get()
+        self._append_to_terminal(val + "\n", color="white")
+        self.terminal_input.delete(0, tk.END)
+        self.terminal_input.config(state='disabled', bg=self.panel_bg)
+        self.input_queue.put(val)
+
+    def _append_to_terminal(self, text, color="#CCCCCC"):
+        """Agrega texto a la consola de la terminal."""
+        self.terminal_output.config(state='normal')
+        
+        # Crear un tag único para el color si no existe
+        tag_name = f"color_{color.replace('#', '')}"
+        self.terminal_output.tag_configure(tag_name, foreground=color)
+        
+        self.terminal_output.insert(tk.END, text, tag_name)
+        self.terminal_output.see(tk.END)
+        self.terminal_output.config(state='disabled')
+
+    def _request_input(self, name, var_type):
+        """Callback para el intérprete cuando necesita una Captura."""
+        def activate_ui():
+            self.notebook.select(self.tab_terminal)
+            self._append_to_terminal(f"📥 Ingrese valor para '{name}' ({var_type}): ", color="#569CD6")
+            self.terminal_input.config(state='normal', bg="#3C3C3C") # Fondo más claro para indicar actividad
+            self.terminal_input.focus_set()
+            
+        self.after(0, activate_ui)
+        # Bloquea hasta que haya algo en la cola (esto está bien en el hilo secundario)
+        return self.input_queue.get()
 
     def _configurar_tags_sintaxis(self):
         # Colores
         self.editor.tag_configure("TIPO_DATO", foreground="#569CD6") # Azul
         self.editor.tag_configure("COMANDO_IO", foreground="#DCDCAA") # Amarillo
+        self.editor.tag_configure("CONTROL", foreground="#C586C0") # Púrpura
+        self.editor.tag_configure("BOOLEANO", foreground="#569CD6") # Azul
         self.editor.tag_configure("CADENA_TEXTO", foreground="#CE9178") # Naranja
         self.editor.tag_configure("NUMERO", foreground="#B5CEA8") # Verde
         self.editor.tag_configure("OPERADOR", foreground="#D4D4D4") # Gris claro
+        self.editor.tag_configure("COMENTARIO", foreground="#6A9955") # Verde oscuro (estilo VSCode)
         
         # Tag para subrayado de errores
         self.editor.tag_configure("ERROR_LINEA", underline=True, underlinefg=self.error_color)
@@ -233,15 +340,21 @@ class CompilerGUI(tk.Tk):
                 start_idx = f"{t.line}.{tk_col}"
                 end_idx = f"{t.line}.{tk_col + len(str(t.value))}"
                 
-                if t.type == "TIPO_DATO":
+                if t.type == "COMENTARIO":
+                    self.editor.tag_add("COMENTARIO", start_idx, end_idx)
+                elif t.type == "TIPO_DATO":
                     self.editor.tag_add("TIPO_DATO", start_idx, end_idx)
                 elif t.type == "COMANDO_IO":
                     self.editor.tag_add("COMANDO_IO", start_idx, end_idx)
+                elif t.type == "CONTROL":
+                    self.editor.tag_add("CONTROL", start_idx, end_idx)
+                elif t.type == "BOOLEANO":
+                    self.editor.tag_add("BOOLEANO", start_idx, end_idx)
                 elif t.type == "CADENA_TEXTO":
                     self.editor.tag_add("CADENA_TEXTO", start_idx, end_idx)
                 elif t.type in ["NUMERO_ENTERO", "NUMERO_REAL"]:
                     self.editor.tag_add("NUMERO", start_idx, end_idx)
-                elif t.type in ["OPERADOR_ASIGNACION", "OPERADOR_ARITMETICO"]:
+                elif t.type in ["OPERADOR_ASIGNACION", "OPERADOR_ARITMETICO", "COMPARADOR"]:
                     self.editor.tag_add("OPERADOR", start_idx, end_idx)
         except LexicalError:
             # Si hay error léxico mientras escribe, colorear lo que se pueda
@@ -257,9 +370,12 @@ class CompilerGUI(tk.Tk):
         self.editor.see(start_idx)
 
     def analizar_codigo(self):
-        # Limpiar tabla, errores previos y subrayado
+        # Limpiar tabla, terminal, errores previos y subrayado
         for item in self.tree.get_children():
             self.tree.delete(item)
+        self.terminal_output.config(state='normal')
+        self.terminal_output.delete("1.0", tk.END)
+        self.terminal_output.config(state='disabled')
         self.lbl_error.config(text="")
         self.editor.tag_remove("ERROR_LINEA", "1.0", tk.END)
         
@@ -270,79 +386,74 @@ class CompilerGUI(tk.Tk):
         codigo = self.editor.get("1.0", tk.END)
         
         if not codigo.strip():
-            return
+            return None
             
         try:
             # 1. Análisis Léxico
-            tokens = tokenize(codigo)
+            tokens_all = tokenize(codigo)
             
-            # Poblar tabla (sin columna)
-            for t in tokens:
+            # Poblar tabla y filtrar para el parser
+            tokens_for_parser = []
+            for t in tokens_all:
                 self.tree.insert('', tk.END, values=(t.line, t.type, t.value))
+                if t.type != 'COMENTARIO':
+                    tokens_for_parser.append(t)
                 
             # 2. Análisis Sintáctico y Semántico
-            parser = Parser(tokens)
-            parser.parse()
+            parser = Parser(tokens_for_parser)
+            ast = parser.parse()
             
-            self._ultimo_error = None  # Resetear historial de errores en éxito
-            msg = f"✅ aro, esa era — {len(tokens)} tokens validados."
-            self.lbl_error.config(text=msg, fg="#89D185") # Verde VSCode
-            messagebox.showinfo("monocuco 🎉", msg)
+            self._ultimo_error = None
+            msg = f"✅ aro, esa era — {len(tokens_all)} tokens validados."
+            self.lbl_error.config(text=msg, fg="#89D185")
+            return ast
             
         except LexicalError as e:
-            error_key = str(e)
-            if self._ultimo_error == error_key:
-                # ¡Mismo error dos veces! — "joda rosa vas a seguir?"
-                self.editor.delete("1.0", tk.END)
-                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
-                self._ultimo_error = None
-                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
-                return
-            self._ultimo_error = error_key
-            self.lbl_error.config(text=str(e), fg=self.error_color)
-            messagebox.showerror("Hey loco que pasa vale mia 😤", str(e))
+            self._manejar_error(e, "Hey loco que pasa vale mia 😤")
         except SyntaxErrorCosteñol as e:
-            error_key = str(e)
-            if self._ultimo_error == error_key:
-                self.editor.delete("1.0", tk.END)
-                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
-                self._ultimo_error = None
-                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
-                return
-            self._ultimo_error = error_key
-            if e.token:
-                self._marcar_error_en_texto(e.token)
-                for item in self.tree.get_children():
-                    val = self.tree.item(item, 'values')
-                    # Ya no comparamos columna, solo linea y lexema para ser precisos
-                    if int(val[0]) == e.token.line and str(val[2]) == str(e.token.value):
-                        self.tree.selection_set(item)
-                        self.tree.focus(item)
-                        self.tree.see(item)
-                        break
-            self.lbl_error.config(text=str(e), fg=self.error_color)
-            messagebox.showerror("mi llave barros schelotto 🚨", str(e))
+            self._manejar_error(e, "mi llave barros schelotto 🚨")
         except SemanticErrorCosteñol as e:
-            error_key = str(e)
-            if self._ultimo_error == error_key:
-                self.editor.delete("1.0", tk.END)
-                self.editor.insert(tk.END, "num1 Entero;\nnombre = Captura.Texto();\nMensaje.Texto(\"Hola Mundo\");")
-                self._ultimo_error = None
-                self.lbl_error.config(text="joda rosa vas a seguir? — Se reinició el código de ejemplo.", fg="#FFCC00")
-                return
-            self._ultimo_error = error_key
-            if getattr(e, 'token', None):
-                self._marcar_error_en_texto(e.token)
-                for item in self.tree.get_children():
-                    val = self.tree.item(item, 'values')
-                    # Ya no comparamos columna, solo linea y lexema
-                    if int(val[0]) == e.token.line and str(val[2]) == str(e.token.value):
-                        self.tree.selection_set(item)
-                        self.tree.focus(item)
-                        self.tree.see(item)
-                        break
-            self.lbl_error.config(text=str(e), fg=self.error_color)
-            messagebox.showerror("Joda loco estas barrilete 💀", str(e))
+            self._manejar_error(e, "Joda loco estas barrilete 💀")
+        return None
+
+    def _manejar_error(self, e, titulo):
+        self._ultimo_error = str(e)
+        
+        if hasattr(e, 'token') and e.token:
+            self._marcar_error_en_texto(e.token)
+            for item in self.tree.get_children():
+                val = self.tree.item(item, 'values')
+                if int(val[0]) == e.token.line and str(val[2]) == str(e.token.value):
+                    self.tree.selection_set(item)
+                    self.tree.focus(item)
+                    self.tree.see(item)
+                    break
+                    
+        self.lbl_error.config(text=str(e), fg=self.error_color)
+        messagebox.showerror(titulo, str(e))
+
+    def ejecutar_codigo(self):
+        """Analiza y luego ejecuta el código en un hilo separado."""
+        ast = self.analizar_codigo()
+        if not ast:
+            return
+
+        from src.interpreter.interpreter import Interpreter
+
+        self.notebook.select(self.tab_terminal)
+        self._append_to_terminal("🚀 Iniciando ejecución...\n\n")
+        
+        def run_interpreter():
+            try:
+                interpreter = Interpreter(
+                    output_callback=lambda m: self.after(0, self._append_to_terminal, m + "\n"),
+                    input_callback=self._request_input
+                )
+                interpreter.execute(ast)
+            except Exception as e:
+                self.after(0, self._append_to_terminal, f"\n❌ ERROR EN EJECUCIÓN: {str(e)}\n", "#F48771")
+
+        threading.Thread(target=run_interpreter, daemon=True).start()
             
 def start_app():
     try:
