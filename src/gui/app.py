@@ -17,16 +17,14 @@ from src.semantic.symbol_table import SemanticErrorCosteñol
 try:
     myappid = 'compilador.costenol.ide.1.0'
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-except Exception:
-    pass
+except Exception: pass
 
 class LineNumbers(tk.Canvas):
     def __init__(self, *args, **kwargs):
         tk.Canvas.__init__(self, *args, **kwargs)
         self.textwidget = None
 
-    def attach(self, text_widget):
-        self.textwidget = text_widget
+    def attach(self, text_widget): self.textwidget = text_widget
 
     def redraw(self, *args):
         self.delete("all")
@@ -46,13 +44,25 @@ class CompilerGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Compilador Costeñol - IDE")
-        self.geometry("1000x750")
+        self.geometry("1100x800")
         
         self.bg_color = "#1E1E1E"; self.fg_color = "#D4D4D4"; self.panel_bg = "#252526"
         self.highlight_bg = "#333333"; self.accent_color = "#0E639C"; self.error_color = "#F48771"
         self.line_num_bg = "#1E1E1E"
         self.configure(bg=self.bg_color)
         
+        # Cargar icono de cerrar (X)
+        try:
+            img_path = os.path.join(os.path.dirname(__file__), '..', '..', 'brain', '7e2aeddb-747d-4fcd-8cd8-0d546412259f', 'close_tab_icon_1778899555954.png')
+            if not os.path.exists(img_path): # Fallback si cambió el ID de la conversación en pruebas
+                img_path = os.path.join(os.path.dirname(__file__), 'close_tab_icon.png')
+            
+            from PIL import Image, ImageTk
+            img = Image.open(img_path).resize((12, 12), Image.LANCZOS)
+            self.close_img = ImageTk.PhotoImage(img)
+        except Exception:
+            self.close_img = None
+
         self.editors = {}; self.input_queue = queue.Queue(); self._ultimo_error = None
         self._configurar_estilos(); self._crear_widgets()
         
@@ -73,6 +83,7 @@ class CompilerGUI(tk.Tk):
         tk.Button(top_frame, text="🔍 Analizar", bg=self.accent_color, fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, padx=10, command=self.analizar_codigo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(top_frame, text="▶ Ejecutar", bg="#28A745", fg="white", font=('Segoe UI', 9, 'bold'), borderwidth=0, padx=10, command=self.ejecutar_codigo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
         tk.Button(top_frame, text="📦 Guardar .pqek", bg=self.highlight_bg, fg=self.fg_color, font=('Segoe UI', 9), borderwidth=0, padx=10, command=self.guardar_archivo, cursor="hand2").pack(side=tk.LEFT, padx=5, pady=5)
+        tk.Button(top_frame, text="❌ Cerrar Pestaña", bg=self.highlight_bg, fg=self.error_color, font=('Segoe UI', 9), borderwidth=0, padx=10, command=self.cerrar_pestana_actual, cursor="hand2").pack(side=tk.RIGHT, padx=5, pady=5)
         
         main_container = tk.Frame(self, bg=self.bg_color); main_container.pack(fill=tk.BOTH, expand=True)
         self.sidebar = tk.Frame(main_container, bg=self.panel_bg, width=220); self.sidebar.pack(side=tk.LEFT, fill=tk.Y); self.sidebar.pack_propagate(False)
@@ -104,36 +115,45 @@ class CompilerGUI(tk.Tk):
         editor = tk.Text(txt_container, bg=self.bg_color, fg=self.fg_color, insertbackground="white", font=('Consolas', 13), undo=True, borderwidth=0, padx=10, pady=10); editor.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         linenumbers.attach(editor)
         
-        if content:
-            editor.insert("1.0", content)
+        texto_final = ""
+        if content: texto_final = content
         elif file_path and os.path.exists(file_path):
-            texto_final = ""
-            # 1. Intentar cargar como paquete .pqek (pickle)
             try:
                 with open(file_path, 'rb') as f:
-                    data = pickle.load(f)
-                    if isinstance(data, dict):
-                        texto_final = data.get("codigo", "")
-            except Exception: pass
-            
-            # 2. Si falló o está vacío, intentar cargar como texto plano
-            if not texto_final:
-                try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        texto_final = f.read()
-                except Exception: pass
-            
-            editor.insert("1.0", texto_final)
+                    raw_data = f.read()
+                    if raw_data:
+                        try:
+                            data = pickle.loads(raw_data)
+                            if isinstance(data, dict): texto_final = data.get("codigo", "")
+                            else: texto_final = "" # Paquete viejo sin codigo
+                        except Exception:
+                            # Si falla el unpickle, intentar como texto plano
+                            texto_final = raw_data.decode('utf-8', errors='ignore')
+            except Exception as e: print(f"Error cargando: {e}")
+        
+        if texto_final: editor.insert("1.0", texto_final)
 
         self._setup_editor_tags(editor)
         title = os.path.basename(file_path) if file_path else "sin_nombre.pqek"
-        self.editor_notebook.add(tab_frame, text=title)
+        self.editor_notebook.add(tab_frame, text=title, image=self.close_img, compound=tk.RIGHT if self.close_img else None)
+        
         tid = tab_frame.winfo_pathname(tab_frame.winfo_id())
         self.editors[tid] = {'editor': editor, 'path': file_path, 'dirty': False, 'title': title, 'linenumbers': linenumbers}
         self.editor_notebook.select(tab_frame)
         editor.bind("<KeyRelease>", lambda e: self._on_editor_change(tid))
         editor.bind("<MouseWheel>", lambda e: linenumbers.redraw())
         self.after(100, lambda: self._highlight_syntax(editor)); self.after(110, lambda: linenumbers.redraw())
+
+    def cerrar_pestana_actual(self):
+        sel = self.editor_notebook.select()
+        if not sel: return
+        info = self.editors.get(sel)
+        if info and info['dirty']:
+            if not messagebox.askyesno("Cerrar", f"La vuelta '{info['title']}' tiene cambios sin guardar. ¿Cerrar de todas formas?"):
+                return
+        self.editor_notebook.forget(sel)
+        if sel in self.editors: del self.editors[sel]
+        if not self.editors: self.add_new_editor_tab()
 
     def _setup_editor_tags(self, editor):
         tags = {"TIPO_DATO":"#569CD6", "COMANDO_IO":"#DCDCAA", "CONTROL":"#C586C0", "BOOLEANO":"#569CD6", "CADENA_TEXTO":"#CE9178", "NUMERO":"#B5CEA8", "OPERADOR":"#D4D4D4", "COMENTARIO":"#6A9955"}
@@ -165,11 +185,15 @@ class CompilerGUI(tk.Tk):
             if not path: return
             info['path'] = path; info['title'] = os.path.basename(path)
         try:
-            content = info['editor'].get("1.0", tk.END).strip()
-            with open(path, 'wb') as f: pickle.dump({"version": "2.0", "codigo": content, "ast": ast}, f)
-            info['dirty'] = False; self.editor_notebook.tab(self.editor_notebook.select(), text=info['title'])
-            self._refresh_package_list(); self.lbl_error.config(text=f"✅ Paquete guardado: {info['title']}", fg="#89D185")
-        except Exception as e: messagebox.showerror("Error", str(e))
+            content = info['editor'].get("1.0", "end-1c") # Sin el newline final de Tkinter
+            with open(path, 'wb') as f:
+                pickle.dump({"version": "3.0", "codigo": content, "ast": ast}, f)
+            
+            info['dirty'] = False
+            self.editor_notebook.tab(self.editor_notebook.select(), text=info['title'])
+            self._refresh_package_list()
+            self.lbl_error.config(text=f"✅ Paquete guardado correctamente: {info['title']}", fg="#89D185")
+        except Exception as e: messagebox.showerror("Error", f"No se pudo guardar la vuelta: {e}")
 
     def _on_sidebar_double_click(self, e):
         item = self.tree_packages.selection()
@@ -182,9 +206,9 @@ class CompilerGUI(tk.Tk):
     def _refresh_package_list(self):
         for item in self.tree_packages.get_children(): self.tree_packages.delete(item)
         pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'packages'))
-        if os.path.exists(pkg_dir):
-            for f in os.listdir(pkg_dir):
-                if f.endswith(".pqek"): self.tree_packages.insert('', tk.END, text=f" 📦 {f}", values=(os.path.join(pkg_dir, f),))
+        if os.path.exists(pkg_path := pkg_dir):
+            for f in os.listdir(pkg_path):
+                if f.endswith(".pqek"): self.tree_packages.insert('', tk.END, text=f" 📦 {f}", values=(os.path.join(pkg_path, f),))
 
     def _highlight_syntax(self, editor):
         for tag in ["TIPO_DATO", "COMANDO_IO", "CONTROL", "BOOLEANO", "CADENA_TEXTO", "NUMERO", "OPERADOR", "COMENTARIO", "ERROR_LINEA"]: editor.tag_remove(tag, "1.0", tk.END)
