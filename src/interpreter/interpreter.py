@@ -35,8 +35,18 @@ class Interpreter:
             else: self.memory[node.name] = None
             
         elif isinstance(node, AssignmentNode):
-            val = self.evaluate(node.value_node)
-            self.memory[node.name] = val
+            if node.is_concatenation:
+                parts = []
+                for val_node in node.value_node:
+                    val = self.evaluate(val_node)
+                    if isinstance(val, bool):
+                        parts.append("Verdad" if val else "Mentira")
+                    else:
+                        parts.append(str(val))
+                self.memory[node.name] = "".join(parts)
+            else:
+                val = self.evaluate(node.value_node)
+                self.memory[node.name] = val
             
         elif isinstance(node, CaptureNode):
             # Solicitar entrada al usuario a través de la GUI
@@ -94,10 +104,7 @@ class Interpreter:
             left = self.evaluate(node.left)
             right = self.evaluate(node.right)
             
-            if node.op == '+':
-                if isinstance(left, str) or isinstance(right, str):
-                    return str(left) + str(right)
-                return left + right
+            if node.op == '+': return left + right
             if node.op == '-': return left - right
             if node.op == '*': return left * right
             if node.op == '/': 

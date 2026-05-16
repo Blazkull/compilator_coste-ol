@@ -22,9 +22,10 @@ class DeclarationNode(ASTNode):
         self.var_type = var_type
 
 class AssignmentNode(ASTNode):
-    def __init__(self, name, value_node):
+    def __init__(self, name, value_node, is_concatenation=False):
         self.name = name
         self.value_node = value_node
+        self.is_concatenation = is_concatenation
 
 class CaptureNode(ASTNode):
     def __init__(self, name, var_type):
@@ -237,16 +238,28 @@ class Parser:
         if self.current_token and self.current_token.type == 'COMANDO_IO' and self.current_token.value == 'Captura':
             return self.parse_captura_tail(var_type, name_token)
         else:
-            value_node, expr_type = self.parse_expresion()
+            values = []
+            val_node, expr_type = self.parse_expresion()
+            values.append(val_node)
+            
+            is_concat = False
+            while self.current_token and self.current_token.type == 'COMA':
+                if var_type != 'Texto':
+                    raise SemanticErrorCosteñol(
+                        f"Joda loco estas barrilete — Solo las variables de tipo 'Texto' admiten concadenación con comas.",
+                        self.current_token
+                    )
+                self.match('COMA')
+                v_node, _ = self.parse_expresion()
+                values.append(v_node)
+                is_concat = True
+
             self.match('DELIMITADOR_FIN')
             
-            if expr_type and expr_type != var_type:
-                if not (var_type == 'Real' and expr_type == 'Entero'):
-                    raise SemanticErrorCosteñol(
-                        f"Joda loco estas barrilete — No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
-                        name_token
-                    )
-            return AssignmentNode(name_token.value, value_node)
+            # Si no es concatenación, enviamos solo el primer nodo (comportamiento normal)
+            final_value = values if is_concat else values[0]
+            
+            return AssignmentNode(name_token.value, final_value, is_concatenation=is_concat)
 
     def parse_captura_tail(self, var_type, name_token):
         self.match('COMANDO_IO') # Captura
@@ -311,17 +324,13 @@ class Parser:
             op_token = self.match('OPERADOR_ARITMETICO')
             right_node, right_type = self.parse_termino()
             
-            if (left_type == 'Texto' or right_type == 'Texto'):
-                if op_token.value == '+':
-                    res_type = 'Texto'
-                else:
-                    raise SemanticErrorCosteñol(
-                        f"Joda loco estas barrilete — No se permite el operador '{op_token.value}' con cadenas de Texto. Solo se permite '+' para unir.",
-                        op_token
-                    )
-            else:
-                res_type = 'Real' if (left_type == 'Real' or right_type == 'Real') else 'Entero'
+            if left_type == 'Texto' or right_type == 'Texto':
+                raise SemanticErrorCosteñol(
+                    f"Joda loco estas barrilete — No se permite el operador '{op_token.value}' con cadenas de Texto. La concadenación en Costeñol se hace con comas ( , ).",
+                    op_token
+                )
             
+            res_type = 'Real' if (left_type == 'Real' or right_type == 'Real') else 'Entero'
             left_node = BinaryOpNode(left_node, op_token.value, right_node, res_type)
             left_type = res_type
                 

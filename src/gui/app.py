@@ -138,9 +138,38 @@ class CompilerGUI(tk.Tk):
                               cursor="hand2")
         btn_close.pack(side=tk.RIGHT, padx=10, pady=5)
         
+        # --- CONTENEDOR PRINCIPAL: SIDEBAR + EDITOR ---
+        main_container = tk.Frame(self, bg=self.bg_color)
+        main_container.pack(fill=tk.BOTH, expand=True)
+
+        # --- BARRA LATERAL (CONTROL DE LA VUELTA) ---
+        self.sidebar = tk.Frame(main_container, bg=self.panel_bg, width=200)
+        self.sidebar.pack(side=tk.LEFT, fill=tk.Y)
+        self.sidebar.pack_propagate(False)
+
+        lbl_sidebar = tk.Label(self.sidebar, text="CONTROL DE LA VUELTA", 
+                               bg=self.highlight_bg, fg=self.fg_color, 
+                               font=('Segoe UI', 9, 'bold'), pady=10)
+        lbl_sidebar.pack(fill=tk.X)
+
+        # Botones de acción en la barra lateral
+        sidebar_btns = tk.Frame(self.sidebar, bg=self.panel_bg)
+        sidebar_btns.pack(fill=tk.X, pady=5)
+
+        self.btn_pack = tk.Button(sidebar_btns, text="📦 Empaquetar", 
+                                  bg=self.accent_color, fg="white",
+                                  font=('Segoe UI', 9), borderwidth=0,
+                                  command=self.empaquetar_codigo, cursor="hand2")
+        self.btn_pack.pack(side=tk.LEFT, padx=5, expand=True, fill=tk.X)
+
+        # Lista de archivos empaquetados
+        self.tree_packages = ttk.Treeview(self.sidebar, show='tree', selectmode="browse")
+        self.tree_packages.pack(fill=tk.BOTH, expand=True, padx=2, pady=5)
+        self.tree_packages.bind("<Double-1>", self._on_package_double_click)
+
         # --- PANEL CENTRAL: EDITOR ---
-        editor_frame = tk.Frame(self, bg=self.bg_color)
-        editor_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+        editor_frame = tk.Frame(main_container, bg=self.bg_color)
+        editor_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
         
         lbl_editor = tk.Label(editor_frame, text="EDITOR COSTEÑOL", bg=self.bg_color, fg="#858585", font=('Consolas', 9))
         lbl_editor.pack(anchor=tk.W)
@@ -266,6 +295,10 @@ Si (limite > 10) {
         import queue
         self.input_queue = queue.Queue()
         self.executing = False
+        self._ultimo_error = None
+        
+        # Cargar paquetes existentes
+        self._refresh_package_list()
 
     def _on_terminal_enter(self, event):
         """Maneja cuando el usuario presiona Enter en la terminal."""
@@ -454,6 +487,93 @@ Si (limite > 10) {
                 self.after(0, self._append_to_terminal, f"\n❌ ERROR EN EJECUCIÓN: {str(e)}\n", "#F48771")
 
         threading.Thread(target=run_interpreter, daemon=True).start()
+
+    def empaquetar_codigo(self):
+        """Genera un archivo .pqek con el AST serializado."""
+        ast = self.analizar_codigo()
+        if not ast:
+            return
+
+        import pickle
+        from tkinter import filedialog
+        
+        # Crear carpeta de paquetes si no existe
+        pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'packages'))
+        if not os.path.exists(pkg_dir):
+            os.makedirs(pkg_dir)
+
+        # Pedir nombre de archivo
+        file_path = filedialog.asksaveasfilename(
+            initialdir=pkg_dir,
+            title="Empaquetar la vuelta",
+            defaultextension=".pqek",
+            filetypes=(("Paquete Costeñol", "*.pqek"), ("Todos los archivos", "*.*"))
+        )
+
+        if file_path:
+            try:
+                datos = {
+                    "version": "1.0",
+                    "autor": "Blazkull",
+                    "ast": ast
+                }
+                with open(file_path, 'wb') as f:
+                    pickle.dump(datos, f)
+                
+                messagebox.showinfo("Control de la Vuelta", f"¡Todo firme! Archivo empaquetado en:\n{os.path.basename(file_path)}")
+                self._refresh_package_list()
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo empaquetar: {e}")
+
+    def _refresh_package_list(self):
+        """Actualiza la lista de archivos .pqek en la barra lateral."""
+        for item in self.tree_packages.get_children():
+            self.tree_packages.delete(item)
+            
+        pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'packages'))
+        if os.path.exists(pkg_dir):
+            for file in os.listdir(pkg_dir):
+                if file.endswith(".pqek"):
+                    self.tree_packages.insert('', tk.END, text=f" 📦 {file}", values=(os.path.join(pkg_dir, file),))
+
+    def _on_package_double_click(self, event):
+        """Al hacer doble clic, ejecutar el paquete .pqek."""
+        item = self.tree_packages.selection()
+        if not item: return
+        
+        file_path = self.tree_packages.item(item, 'values')[0]
+        self.ejecutar_paquete(file_path)
+
+    def ejecutar_paquete(self, file_path):
+        """Carga un AST de un archivo .pqek y lo ejecuta."""
+        import pickle
+        from src.interpreter.interpreter import Interpreter
+
+        try:
+            with open(file_path, 'rb') as f:
+                datos = pickle.load(f)
+            
+            ast = datos.get("ast")
+            if not ast:
+                raise Exception("Archivo corrupto o sin AST.")
+
+            self.notebook.select(self.tab_terminal)
+            self._append_to_terminal(f"🚀 Ejecutando paquete: {os.path.basename(file_path)}...\n")
+            
+            def run_interpreter():
+                try:
+                    interpreter = Interpreter(
+                        output_callback=lambda m: self.after(0, self._append_to_terminal, m + "\n"),
+                        input_callback=self._request_input
+                    )
+                    interpreter.execute(ast)
+                except Exception as e:
+                    self.after(0, self._append_to_terminal, f"\n❌ ERROR EN PAQUETE: {str(e)}\n", "#F48771")
+
+            threading.Thread(target=run_interpreter, daemon=True).start()
+
+        except Exception as e:
+            messagebox.showerror("Error de Paquete", f"No se pudo abrir la vuelta: {e}")
             
 def start_app():
     try:
