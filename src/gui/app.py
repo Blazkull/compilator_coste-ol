@@ -92,12 +92,18 @@ class CompilerGUI(tk.Tk):
         bottom = tk.Frame(self, bg=self.bg_color, height=220); bottom.pack(fill=tk.X, side=tk.BOTTOM)
         self.lbl_error = tk.Label(bottom, text="", bg=self.bg_color, fg=self.error_color, font=('Consolas', 10), pady=2); self.lbl_error.pack(fill=tk.X)
         self.notebook_console = ttk.Notebook(bottom); self.notebook_console.pack(fill=tk.BOTH, expand=True)
-        self.tab_terminal = tk.Frame(self.notebook_console, bg=self.panel_bg); self.notebook_console.add(self.tab_terminal, text=" 💻 TERMINAL ")
-        self.terminal_output = scrolledtext.ScrolledText(self.tab_terminal, bg=self.panel_bg, fg="#CCCCCC", font=('Consolas', 11), borderwidth=0, state='disabled', padx=10, pady=5); self.terminal_output.pack(fill=tk.BOTH, expand=True)
-        t_input_f = tk.Frame(self.tab_terminal, bg=self.panel_bg); t_input_f.pack(fill=tk.X, side=tk.BOTTOM, padx=5, pady=2)
-        tk.Label(t_input_f, text=" > ", bg=self.panel_bg, fg=self.accent_color, font=('Consolas', 12, 'bold')).pack(side=tk.LEFT)
-        self.terminal_input = tk.Entry(t_input_f, bg=self.panel_bg, fg="white", insertbackground="white", font=('Consolas', 12), borderwidth=0); self.terminal_input.pack(fill=tk.X, side=tk.LEFT, expand=True); self.terminal_input.bind("<Return>", self._on_terminal_enter)
         
+        # --- TAB TERMINAL ---
+        self.tab_terminal = tk.Frame(self.notebook_console, bg=self.panel_bg); self.notebook_console.add(self.tab_terminal, text=" 💻 TERMINAL ")
+        
+        # IMPORTANTE: Pack el input primero abajo para que no lo tape el output
+        t_input_f = tk.Frame(self.tab_terminal, bg="#333333", height=35); t_input_f.pack(fill=tk.X, side=tk.BOTTOM, padx=0, pady=0)
+        tk.Label(t_input_f, text=" > ", bg="#333333", fg=self.accent_color, font=('Consolas', 12, 'bold')).pack(side=tk.LEFT, padx=5)
+        self.terminal_input = tk.Entry(t_input_f, bg="#333333", fg="white", insertbackground="white", font=('Consolas', 12), borderwidth=0); self.terminal_input.pack(fill=tk.X, side=tk.LEFT, expand=True, pady=5); self.terminal_input.bind("<Return>", self._on_terminal_enter)
+        
+        self.terminal_output = scrolledtext.ScrolledText(self.tab_terminal, bg=self.panel_bg, fg="#CCCCCC", font=('Consolas', 11), borderwidth=0, state='disabled', padx=10, pady=5); self.terminal_output.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
+        
+        # --- TAB TOKENS ---
         self.tab_tokens = tk.Frame(self.notebook_console, bg=self.panel_bg); self.notebook_console.add(self.tab_tokens, text=" 🔍 TOKENS ")
         self.tree_tokens = ttk.Treeview(self.tab_tokens, columns=('linea', 'token', 'lexema'), show='headings'); self.tree_tokens.heading('linea', text='Línea'); self.tree_tokens.heading('token', text='Tipo'); self.tree_tokens.heading('lexema', text='Valor'); self.tree_tokens.column('linea', width=50); self.tree_tokens.pack(fill=tk.BOTH, expand=True)
 
