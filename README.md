@@ -8,7 +8,7 @@ Un IDE y compilador educativo desarrollado en **Python** con **Tkinter**, diseñ
 
 ```text
 compilator_costeñol/
-├── packages/               # Archivos .pqek (AST serializado)
+├── packages/               # Archivos .pqek (Código + AST serializado)
 ├── src/
 │   ├── gui/                # IDE con Terminal y "Control de la Vuelta"
 │   ├── lexer/              # Lexer con soporte para comentarios y comparadores
@@ -21,19 +21,16 @@ compilator_costeñol/
 
 ---
 
-## 🚀 Nuevas Funcionalidades (V2.0)
+## 🚀 Nuevas Funcionalidades (V3.0 - Full .pqek)
 
 ### 💻 Terminal Interactiva
-El IDE ahora cuenta con una terminal integrada que permite:
-- **Entrada de datos:** Uso de `Captura.Entero()`, `Captura.Texto()`, etc., directamente desde la consola.
-- **Salida en tiempo real:** Visualización de mensajes y errores de ejecución.
-- **Multihilo:** La ejecución no bloquea la interfaz gráfica.
+El IDE cuenta con una terminal integrada que permite entrada/salida en tiempo real y ejecución multihilo.
 
 ### 📦 Control de la Vuelta (.pqek)
-Sistema de empaquetado inspirado en VSCode:
-- **Empaquetar:** Guarda el AST de tu código en un formato binario `.pqek`.
-- **Sidebar:** Panel izquierdo para gestionar y ejecutar tus "vueltas" (paquetes) con doble clic.
-- **Portabilidad:** Los archivos `.pqek` pueden ejecutarse sin necesidad de volver a parsear el código fuente.
+El formato **.pqek** es ahora el estándar universal del lenguaje:
+- **Todo en uno:** Un archivo `.pqek` guarda tanto tu código fuente como el árbol (AST) listo para ejecutar.
+- **Sidebar:** Gestiona tus archivos directamente desde el panel izquierdo. Al hacer doble clic, el IDE "desempaqueta" el código para editarlo.
+- **Persistencia:** Guarda tus progresos con `Ctrl+S` directamente en formato de paquete.
 
 ### 🧠 Gramática Extendida
 - **Control de Flujo:** Soporte para bloques `Si`, `Sino` y bucles `Mientras`.
