@@ -162,7 +162,7 @@ class CompilerGUI(tk.Tk):
     def guardar_archivo(self):
         i = self.get_current_editor_info()
         if not i: return
-        ast = self.analizar_codigo()
+        ast = self.analizar_codigo(show_popup=False)
         p = i['path']
         if not p:
             pkg_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'packages'))
@@ -202,7 +202,7 @@ class CompilerGUI(tk.Tk):
                 else: e.tag_add(t.type, s, end)
         except: pass
 
-    def analizar_codigo(self):
+    def analizar_codigo(self, show_popup=True):
         i = self.get_current_editor_info()
         if not i: return None
         for it in self.tree_tokens.get_children(): self.tree_tokens.delete(it)
@@ -212,12 +212,17 @@ class CompilerGUI(tk.Tk):
             toks = tokenize(cod)
             for t in toks: self.tree_tokens.insert('', tk.END, values=(t.line, t.type, t.value))
             ast = Parser([t for t in toks if t.type != 'COMENTARIO']).parse()
-            self.lbl_error.config(text="✅ Todo nítido.", fg="#89D185"); return ast
+            self.lbl_error.config(text="✅ Todo nítido.", fg="#89D185")
+            if show_popup:
+                messagebox.showinfo("Validación Exitosa", "✅ Todo nítido, llave. La sintaxis está bacana, ¡dale plomo y ejecuta esa vaina!")
+            return ast
         except Exception as ex:
             self.lbl_error.config(text=str(ex), fg=self.error_color)
             if hasattr(ex, 'token') and ex.token:
                 s, end = f"{ex.token.line}.{ex.token.column-1}", f"{ex.token.line}.{ex.token.column-1 + len(str(ex.token.value))}"
                 ed.tag_add("ERROR_LINEA", s, end); ed.see(s)
+            if show_popup:
+                messagebox.showerror("Error de Sintaxis", f"¡Eche cuadro, tremendo bololó! Corrige este error antes de ejecutar:\n\n{str(ex)}")
             return None
 
     def ejecutar_codigo(self):
