@@ -26,7 +26,7 @@ El compilador de **"Costeñol"** procesa y ejecuta las instrucciones estructurad
 
 ```mermaid
 graph TD
-    A["Código Fuente .costenol"] --> B["Analizador Léxico (Lexer)"]
+    A["Código Fuente .pqek"] --> B["Analizador Léxico (Lexer)"]
     B -->|Flujo de Tokens| C["Analizador Sintáctico (Parser)"]
     C -->|AST - Árbol de Sintaxis Abstracta| D["Validador Semántico"]
     D -->|Validación de Tipos y Reglas| E["Intérprete (Visita AST)"]
