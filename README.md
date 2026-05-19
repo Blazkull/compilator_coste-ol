@@ -26,15 +26,15 @@ El compilador de **"Costeñol"** procesa y ejecuta las instrucciones estructurad
 
 ```mermaid
 graph TD
-    A["Código Fuente (.costenol)"] --> B["Analizador Léxico (Lexer)"]
+    A["Código Fuente .costenol"] --> B["Analizador Léxico (Lexer)"]
     B -->|Flujo de Tokens| C["Analizador Sintáctico (Parser)"]
-    C -->|Árbol de Sintaxis Abstracta (AST)| D["Validador Semántico"]
+    C -->|AST - Árbol de Sintaxis Abstracta| D["Validador Semántico"]
     D -->|Validación de Tipos y Reglas| E["Intérprete (Visita AST)"]
     E -->|Ejecución en Tiempo Real| F["Terminal de Salida (GUI)"]
     
-    C -->|Empaqueta Código + AST| G["Empaquetador (.pqek)"]
-    G -->|Persistencia de Datos| H[("Archivo .pqek")]
-    H -->|Carga / Desinstalación| C
+    C -->|Empaqueta Código y AST| G["Empaquetador (.pqek)"]
+    G -->|Persistencia de Datos| H["Archivo .pqek"]
+    H -->|Carga y Desinstalación| C
     
     subgraph "Fases del Compilador"
         B
@@ -46,7 +46,7 @@ graph TD
     style A fill:#ffe5d9,stroke:#ff9f1c,stroke-width:2px
     style F fill:#d8f3dc,stroke:#2d6a4f,stroke-width:2px
     style H fill:#e8e8e4,stroke:#b7b7a4,stroke-width:2px
-    style G fill:#f0d8ffd,stroke:#9d4edd,stroke-width:2px
+    style G fill:#f0d8ff,stroke:#9d4edd,stroke-width:2px
 ```
 
 ---
