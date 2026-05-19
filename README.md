@@ -1,6 +1,21 @@
 # Compilador "COSTEÑOL" 🦀
 
-Un IDE y compilador educativo desarrollado en **Python** con **Tkinter**, diseñado para analizar léxica, sintáctica y semánticamente el lenguaje **"Costeñol"**. Ahora incluye un motor de ejecución interactivo y sistema de empaquetado.
+Un IDE y compilador educativo desarrollado en **Python** con **Tkinter**, diseñado para analizar léxica, sintáctica y semánticamente el lenguaje **"Costeñol"**, un lenguaje de programación basado en el dialecto de la costa caribe colombiana. Este proyecto incluye un motor de ejecución interactivo, sistema de empaquetado y un entorno de desarrollo completo.
+
+---
+
+## 📖 ¿De qué trata el proyecto?
+
+El proyecto es un lenguaje de programación esotérico y educativo que busca acercar los conceptos de diseño de compiladores a un entorno más coloquial y divertido. Proporciona su propia sintaxis, analizador léxico, analizador sintáctico (parser), validador semántico e intérprete. Todo empaquetado dentro de un IDE con interfaz gráfica.
+
+### Características Principales:
+- **IDE Integrado**: Interfaz gráfica con editor de texto, terminal interactiva y administrador de archivos.
+- **Dialecto Costeñol**: Mensajes de error, éxito y operaciones utilizan expresiones típicas costeñas.
+- **Control de Flujo Completo**: Soporte para condicionales (`Si`, `Sino`) y bucles (`Mientras`).
+- **Tipado Fuerte**: Validación semántica para operaciones y asignaciones (e.g. `Entero`, `Real`, `Texto`, `Logico`).
+- **Sistema de Archivos Propios (.pqek)**: Guarda tanto el código fuente como los árboles de sintaxis serializados.
+- **Terminal de Alto Rendimiento**: Terminal incorporada con auto-limpieza, scroll inteligente y entrada continua.
+- **Comentarios**: Soporte para comentarios en el código mediante `//`.
 
 ---
 
@@ -14,91 +29,113 @@ compilator_costeñol/
 │   ├── lexer/              # Lexer con soporte para comentarios y comparadores
 │   ├── parser/             # Parser con soporte para Si/Mientras
 │   ├── interpreter/        # Motor de ejecución (Visita el AST)
-│   └── main.py             # Punto de entrada
-├── tests/                  # Pruebas unitarias
+│   └── main.py             # Punto de entrada principal
+├── tests/                  # Pruebas unitarias para validar las fases de compilación
+├── docs/                   # Documentación adicional y entregables
 └── README.md
 ```
 
 ---
 
-## 🚀 Nuevas Funcionalidades (V4.2 - Final Sprint)
+## ⚙️ Instalación y Configuración
 
-### 💻 Terminal de Alto Rendimiento
-- **Entrada Continua:** El campo de texto de la terminal está siempre activo para una mejor experiencia de usuario.
-- **Auto-Limpieza:** Cada vez que ejecutas un código, la terminal se limpia automáticamente para evitar confusiones con resultados anteriores.
-- **Scroll Inteligente:** La salida siempre te muestra la última línea ejecutada.
+Para utilizar o modificar el compilador en tu propia máquina, sigue estos pasos:
 
-### 📦 Control de la Vuelta (.pqek)
-- **Empaquetado Total:** Los archivos `.pqek` ahora guardan el código fuente original. Al abrirlos desde el sidebar, recuperas tu trabajo instantáneamente.
-- **Gestión de Pestañas:** Abre múltiples archivos simultáneamente y ciérralos con el nuevo botón de cierre.
+### 1. Requisitos Previos
+- Tener instalado **Python 3.8** o superior.
+- (Opcional pero recomendado) Crear un entorno virtual.
 
-### ❓ Ayuda y Ejemplos
-- **Botón de Ayuda:** Acceso instantáneo a la sintaxis del lenguaje con un ejemplo funcional de contador interactivo.
-
-### 🧠 Gramática y Lógica
-- **Concatenación con Comas:** Soporte extendido para unir textos usando comas `,` en cualquier parte del código, incluyendo dentro de paréntesis.
-- **Tipado Fuerte:** Validación semántica para asegurar que las operaciones se realicen entre tipos compatibles.
-- **Comentarios:** Ahora puedes comentar tu código usando `//` (resaltados en verde).
-- **Concatenación:** El operador de unión es la coma `,` (ej. `Respuesta = "Hola ", nombre;`). El signo `+` queda reservado solo para números.
-
----
-
-## ⚙️ Instalación y Ejecución
-
-1. **Instalar dependencias:** `pip install -r requirements.txt`
-2. **Iniciar el IDE:** `python src/main.py`
-
----
-
-## 🔬 Flujo del Compilador Moderno
-
+### 2. Clonar el Repositorio
+```bash
+git clone https://github.com/Blazkull/compilator_coste-ol.git
+cd compilator_coste-ol
 ```
-Código fuente → [LÉXICO] → [SINTÁCTICO] → [AST] → [INTÉRPRETE] → EJECUCIÓN
-                                         ↓
-                                  [EMPAQUETADO .PQEK]
+
+### 3. Instalar Dependencias
+Instala los paquetes necesarios definados en el proyecto:
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Ejecutar el Compilador (IDE)
+Para abrir la interfaz gráfica y comenzar a programar en Costeñol, ejecuta:
+```bash
+python src/main.py
 ```
 
 ---
 
-## 📚 Gramática y Reglas Semánticas
+## 📚 Gramática y Uso del Lenguaje
 
-### Control de Flujo
+### Variables y Asignación
+El lenguaje requiere definir el tipo de variable antes de usarla.
 ```text
-Mientras (a < 10) {
-    a = a + 1;
-}
+edad Entero;
+nombre Texto;
+es_mayor Logico;
 
+edad = 25;
+nombre = "Juan";
+```
+
+### Entrada y Salida
+Interactúa con la terminal del IDE usando comandos costeños:
+```text
+// Imprimir en pantalla
+Mensaje.Texto("Habla, mi llave!");
+
+// Leer datos desde la terminal
+Mensaje.Texto("¿Qué edad tienes?");
+edad = Captura.Entero();
+```
+
+### Concatenación y Operadores
+- **Suma de números**: Se usa `+`.
+- **Concatenación de texto**: Se usa la coma `,`.
+```text
+Mensaje.Texto("Tu edad es ", edad);
+```
+
+### Control de Flujo (Condicionales)
+Las condiciones en `Si` y `Mientras` deben evaluar a un valor `Logico`.
+```text
 Si (edad >= 18) {
-    Mensaje.Texto("Pasa, mi llave");
+    Mensaje.Texto("Pasa, mi llave, eres mayor.");
 } Sino {
-    Mensaje.Texto("Pa la casa");
+    Mensaje.Texto("Pa la casa, tas pelao.");
 }
 ```
 
-### Reglas Semánticas Actualizadas
-- **Concatenación:** Se usa la coma `,` para unir valores en variables de tipo `Texto`. El operador `+` solo es válido para números (`Entero` y `Real`).
-- **Condicionales:** Las condiciones en `Si` y `Mientras` deben evaluar a un valor `Logico`.
-
----
-
-## 🧪 Ejemplo Completo: Contador
+### Ciclos (Mientras)
 ```text
-// Ejemplo Costeñol: Contador con límites
 limite Entero;
 i Entero;
 
-Mensaje.Texto("Hasta cuanto quieres contar, mi llave?");
-limite = Captura.Entero();
-
+limite = 5;
 i = 1;
+
 Mientras (i <= limite) {
-    Mensaje.Texto("Contando:", i);
+    Mensaje.Texto("Contando: ", i);
     i = i + 1;
 }
-
-Mensaje.Texto("Breve, eso fue rápido.");
 ```
 
 ---
 
-*Proyecto académico orientado al aprendizaje de la teoría de compiladores — Lenguaje Costeñol 🦀*
+## 🧪 Pruebas Unitarias
+
+El proyecto viene con su suite de pruebas para asegurar la estabilidad del compilador (fases léxicas, sintácticas y semánticas):
+```bash
+python run_tests.py
+```
+
+---
+
+## 👨‍💻 Desarrolladores y Colaboradores
+
+Este proyecto fue ideado y desarrollado con mucho esmero y sabrosura costeña por:
+
+- **[Jhoan Acosta](https://github.com/Blazkull)**
+- **[Rafael Jimenez](https://github.com/Rafael-Jimenez)**
+
+> Puedes ver el registro completo de colaboraciones directamente en los [Contributors del Proyecto](https://github.com/Blazkull/compilator_coste-ol/graphs/contributors).
