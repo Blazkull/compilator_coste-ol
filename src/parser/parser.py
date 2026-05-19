@@ -258,6 +258,19 @@ class Parser:
             self.match('DELIMITADOR_FIN')
             
             final_value = ConcatenationNode(values) if len(values) > 1 else values[0]
+            
+            # Verificación Semántica: coincidencia de tipos en la asignación
+            if var_type == 'Entero' and expr_type == 'Real':
+                raise SemanticErrorCosteñol(
+                    f"Joda loco estas barrilete — No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
+                    name_token
+                )
+            elif var_type != expr_type and not (var_type == 'Real' and expr_type == 'Entero'):
+                raise SemanticErrorCosteñol(
+                    f"Joda loco estas barrilete — No se puede asignar una expresión de tipo '{expr_type}' a la variable '{name_token.value}' de tipo '{var_type}'.",
+                    name_token
+                )
+                
             return AssignmentNode(name_token.value, final_value)
 
     def parse_captura_tail(self, var_type, name_token):
@@ -295,7 +308,7 @@ class Parser:
             elif self.current_token and self.current_token.type == 'IDENTIFICADOR':
                 id_token = self.match('IDENTIFICADOR')
                 var_type = self.symtab.lookup(id_token.value, id_token)
-                if msg_type_token.value != 'Texto' and var_type != msg_type_token.value:
+                if var_type != msg_type_token.value:
                     raise SemanticErrorCosteñol(
                         f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
                         id_token
@@ -317,9 +330,28 @@ class Parser:
         return MessageNode(msg_type_token.value, arguments)
 
     def parse_expresion(self):
+        left_node, left_type = self.parse_factor()
+        
+        while self.current_token and self.current_token.type == 'OPERADOR_ARITMETICO' and self.current_token.value in ('+', '-'):
+            op_token = self.match('OPERADOR_ARITMETICO')
+            right_node, right_type = self.parse_factor()
+            
+            if left_type == 'Texto' or right_type == 'Texto':
+                raise SemanticErrorCosteñol(
+                    f"Joda loco estas barrilete — No se permite el operador '{op_token.value}' con cadenas de Texto. La concadenación en Costeñol se hace con comas ( , ).",
+                    op_token
+                )
+            
+            res_type = 'Real' if (left_type == 'Real' or right_type == 'Real') else 'Entero'
+            left_node = BinaryOpNode(left_node, op_token.value, right_node, res_type)
+            left_type = res_type
+                
+        return left_node, left_type
+
+    def parse_factor(self):
         left_node, left_type = self.parse_termino()
         
-        while self.current_token and self.current_token.type == 'OPERADOR_ARITMETICO':
+        while self.current_token and self.current_token.type == 'OPERADOR_ARITMETICO' and self.current_token.value in ('*', '/'):
             op_token = self.match('OPERADOR_ARITMETICO')
             right_node, right_type = self.parse_termino()
             
@@ -329,7 +361,8 @@ class Parser:
                     op_token
                 )
             
-            res_type = 'Real' if (left_type == 'Real' or right_type == 'Real') else 'Entero'
+            # En división es mejor que el tipo resultante sea Real si queremos conservar decimales, pero mantengo la lógica general
+            res_type = 'Real' if (left_type == 'Real' or right_type == 'Real' or op_token.value == '/') else 'Entero'
             left_node = BinaryOpNode(left_node, op_token.value, right_node, res_type)
             left_type = res_type
                 

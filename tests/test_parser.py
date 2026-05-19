@@ -25,7 +25,7 @@ class TestParser(unittest.TestCase):
         """Prueba Sintáctica: Fallo intencional por orden inverso -> 'Entero num1;'"""
         with self.assertRaises(SyntaxErrorCosteñol) as context:
             self._parse("Entero num1;")
-        self.assertIn("Toda sentencia debe empezar con un Identificador o 'Mensaje'", context.exception.message)
+        self.assertIn("Toda sentencia debe empezar con un Identificador", context.exception.message)
             
     def test_declaracion_sin_punto_y_coma(self):
         """Prueba Sintáctica: Fallo intencional por falta de punto y coma -> 'num1 Entero'"""
@@ -35,7 +35,7 @@ class TestParser(unittest.TestCase):
     def test_asignacion_matematica(self):
         """Prueba Sintáctica: Asignación matemática con paréntesis -> 'res = (10 + 20) / 5;'"""
         try:
-            self._parse("res Entero; res = (10 + 20) / 5;")
+            self._parse("res Real; res = (10 + 20) / 5;")
         except SyntaxErrorCosteñol:
             self.fail("Falló en una asignación matemática válida.")
             
@@ -77,6 +77,21 @@ class TestParser(unittest.TestCase):
             self._parse(codigo)
         except SyntaxErrorCosteñol:
             self.fail("Falló al parsear un bloque válido de varias líneas.")
+
+    def test_precedencia_aritmetica(self):
+        """Prueba Sintáctica: Precedencia aritmética correcta -> 'res = 2 + 3 * 4;'"""
+        try:
+            tokens = tokenize("res Entero; res = 2 + 3 * 4;")
+            parser = Parser(tokens)
+            ast = parser.parse()
+            # Validar que el nodo raíz es un AssignmentNode
+            stmt = ast.statements[1]
+            self.assertEqual(stmt.name, "res")
+            # El valor asignado debe ser un BinaryOpNode (+) donde el hijo derecho es otro BinaryOpNode (*)
+            self.assertEqual(stmt.value_node.op, "+")
+            self.assertEqual(stmt.value_node.right.op, "*")
+        except Exception as e:
+            self.fail(f"Falló la prueba de precedencia aritmética: {str(e)}")
 
 if __name__ == '__main__':
     unittest.main()

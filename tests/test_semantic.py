@@ -49,7 +49,7 @@ class TestSemantic(unittest.TestCase):
         """Prueba Semántica: Falla al sumar Textos."""
         with self.assertRaises(SemanticErrorCosteñol) as context:
             self._parse('nombre Texto; res Entero; nombre = "a"; res = nombre + 5;')
-        self.assertIn("No se permiten operaciones aritméticas con cadenas", context.exception.message)
+        self.assertIn("No se permite el operador", context.exception.message)
 
     def test_asignacion_valida_promocion(self):
         """Prueba Semántica: Permite asignar Entero a Real."""
