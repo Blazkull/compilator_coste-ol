@@ -308,7 +308,7 @@ class Parser:
             elif self.current_token and self.current_token.type == 'IDENTIFICADOR':
                 id_token = self.match('IDENTIFICADOR')
                 var_type = self.symtab.lookup(id_token.value, id_token)
-                if var_type != msg_type_token.value:
+                if msg_type_token.value != 'Texto' and var_type != msg_type_token.value:
                     raise SemanticErrorCosteñol(
                         f"Joda loco estas barrilete — 'Mensaje.{msg_type_token.value}' no puede imprimir la variable '{id_token.value}' de tipo '{var_type}'.",
                         id_token

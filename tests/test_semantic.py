@@ -40,10 +40,17 @@ class TestSemantic(unittest.TestCase):
         self.assertIn("Se intenta capturar un 'Texto'", context.exception.message)
             
     def test_tipo_incorrecto_mensaje(self):
-        """Prueba Semántica: Falla al imprimir Entero con Mensaje.Texto."""
+        """Prueba Semántica: Falla al imprimir Texto con Mensaje.Entero."""
         with self.assertRaises(SemanticErrorCosteñol) as context:
-            self._parse('num1 Entero; num1 = 5; Mensaje.Texto(num1);')
-        self.assertIn("no puede imprimir la variable 'num1' de tipo 'Entero'", context.exception.message)
+            self._parse('num1 Texto; num1 = "Hola"; Mensaje.Entero(num1);')
+        self.assertIn("no puede imprimir la variable 'num1' de tipo 'Texto'", context.exception.message)
+
+    def test_mensaje_texto_mixto(self):
+        """Prueba Semántica: Mensaje.Texto permite concatenar texto y variables numéricas con coma."""
+        try:
+            self._parse('num1 Entero; num1 = 5; Mensaje.Texto("El valor es: ", num1);')
+        except SemanticErrorCosteñol:
+            self.fail("Falló al imprimir Texto combinado con Entero usando comas.")
 
     def test_operacion_con_texto(self):
         """Prueba Semántica: Falla al sumar Textos."""
